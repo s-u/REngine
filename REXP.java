@@ -1,6 +1,7 @@
 package org.rosuda.REngine;
 
 public abstract class REXP {
+	public REXP() {};
     public REXP(String[] s) {};
     public REXP(int[] i) {};
     public REXP(double[] d) {};
