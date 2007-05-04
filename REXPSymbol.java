@@ -5,7 +5,7 @@ public class REXPSymbol extends REXP {
 	
 	public REXPSymbol(String name) {
 		super();
-		name=(name==null)?"":name;
+		this.name=(name==null)?"":name;
 	}
 	
 	public boolean isSymbol() { return true; }

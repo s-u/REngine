@@ -3,6 +3,11 @@ package org.rosuda.REngine;
 public class REXPString extends REXPVector {
 	private String[] payload;
 	
+	public REXPString(String load) {
+		super();
+		payload=new String[] { load };
+	}
+
 	public REXPString(String[] load) {
 		super();
 		payload=(load==null)?new String[0]:load;

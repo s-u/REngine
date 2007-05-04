@@ -6,7 +6,7 @@ TARGETS=REngine.jar Rserve.jar
 all: $(TARGETS)
 
 JAVAC=javac
-JFLAGS=-source 1.4 -target 1.4
+JFLAGS+=-source 1.4 -target 1.4
 
 REngine.jar: $(RENG_SRC)
 	@rm -rf org

@@ -17,4 +17,8 @@ public class REXPList extends REXPVector {
 
 	public boolean isList() { return true; }
 	public RList asList() { return payload; }
+	
+	public String toString() {
+		return super.toString()+(asList().isNamed()?"named":"");
+	}	
 }

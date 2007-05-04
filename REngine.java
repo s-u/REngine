@@ -61,6 +61,13 @@ public abstract class REngine {
 	}
     public REXP parseAndEval(String cmd) throws REngineException { return parseAndEval(cmd, null, true); };
 	
+	
+	//--- convenience methods ---
+	public void assign(String symbol, double[] d) throws REngineException { assign(symbol, new REXPDouble(d), null); }
+	public void assign(String symbol, int[] d) throws REngineException { assign(symbol, new REXPInteger(d), null); }
+	public void assign(String symbol, String[] d) throws REngineException { assign(symbol, new REXPString(d), null); }
+	public void assign(String symbol, byte[] d) throws REngineException { assign(symbol, new REXPRaw(d), null); }
+
 	public String toString() {
 		return super.toString()+((lastEngine==this)?"{last}":"");
 	}

@@ -3,7 +3,12 @@ package org.rosuda.REngine;
 public class REXPInteger extends REXPVector {
 	private int[] payload;
 	
-	public final int NA = -2147483648;
+	public static final int NA = -2147483648;
+
+	public REXPInteger(int load) {
+		super();
+		payload=new int[] { load };
+	}
 	
 	public REXPInteger(int[] load) {
 		super();

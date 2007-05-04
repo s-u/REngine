@@ -285,18 +285,6 @@ public void assign(String sym, REXP rexp) throws RserveException {
 	}
 }
 
-    /** assign values of an array of doubles to a symbol in R (creating as vector of numbers).<br>
-        equals to calling {@link #assign(String, REXP)} */        
-public void assign(String sym, double[] val) throws RserveException {
-	assign(sym,new REXPDouble(val));
-}
-
-    /** assign values of an array of integers to a symbol in R (creating as vector of numbers).<br>
-        equals to calling {@link #assign(String, REXP)} */        
-    public void assign(String sym, int[] val) throws RserveException {
-        assign(sym,new REXPInteger(val));
-    }
-
     /** open a file on the Rserve for reading
         @param fn file name. should not contain any path delimiters, since Rserve may restrict the access to local working directory.
         @return input stream to be used for reading. Note that the stream is read-once only, there is no support for seek or rewind. */

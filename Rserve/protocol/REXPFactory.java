@@ -113,6 +113,8 @@ public class REXPFactory {
 			type = XT_ARRAY_STR;
 		} else if (r instanceof REXPSymbol) {
 			type = XT_SYMNAME;
+		} else if (r instanceof REXPRaw) {
+			type = XT_RAW;
 		} else if (r instanceof REXPLogical) {
 			type = XT_ARRAY_BOOL;
 		} else {
@@ -232,16 +234,25 @@ public class REXPFactory {
 			 } */
 			return o;
 		}
+        if (xt==XT_RAW) {
+            int as=RTalk.getInt(buf,o);
+            o+=4;
+            byte[] d=new byte[as];
+			System.arraycopy(buf,o,d,0,as);
+			o = eox;
+			cont = new REXPRaw(d, getAttr());
+            return o;
+        }
 		if (xt==XT_LIST_NOTAG || xt==XT_LIST_TAG) {
+			REXPFactory lc = new REXPFactory();
+			REXPFactory nf = new REXPFactory();
 			RList l = new RList();
-			while (o<eox) { // FIXME: we may want to move the factory outside
-				REXPFactory lc = new REXPFactory();
+			while (o<eox) {
 				String name = null;
 				o = lc.parseREXP(buf, o);
 				if (xt==XT_LIST_TAG) {
-					REXPFactory ns = new REXPFactory();
-					o = ns.parseREXP(buf, o);
-					name = ns.cont.asString();
+					o = nf.parseREXP(buf, o);
+					name = nf.cont.asString();
 				}
 				if (name==null) l.add(lc.cont);
 				else l.put(name, lc.cont);
@@ -265,17 +276,39 @@ public class REXPFactory {
 				o=eox;
 			}
 			// fixup for lists since they're stored as attributes of vectors
-			if (getAttr().asList().get("names") != null) {
+			if (getAttr()!=null && getAttr().asList().at("names") != null) {
 				REXP nam = getAttr().asList().at("names");
 				RList l = new RList(v, nam.asStringArray());
-				cont = new REXPList(l, getAttr());
+				cont = new REXPGenericVector(l, getAttr());
 			} else
-				cont = new REXPList(new RList(v), getAttr());
+				cont = new REXPGenericVector(new RList(v), getAttr());
 				
 			return o;
 		}
+		if (xt==XT_ARRAY_STR) {
+			int c = 0, i = o;
+			while (i < eox) if (buf[i++]==0) c++;
+			String s[] = new String[c];
+			if (c > 0) {
+				c = 0; i = o;
+				while (o < eox) {
+					if (buf[o]==0) {
+						try {
+							s[c]=new String(buf, i, o-i, RConnection.transferCharset);
+						} catch (java.io.UnsupportedEncodingException ex) {
+							s[c]="";
+						}
+						c++;
+						i = o + 1;
+					}
+					o++;
+				}
+			}
+			cont = new REXPString(s, getAttr());
+			return o;
+		}
 		if (xt==XT_VECTOR_STR) {
-			RList v=new RList();
+			Vector v=new Vector();
 			while(o<eox) {
 				REXPFactory xx=new REXPFactory();
 				o = xx.parseREXP(buf,o);
@@ -291,18 +324,18 @@ public class REXPFactory {
 			return o;
 		}
 		if (xt==XT_STR||xt==XT_SYMNAME) {
-			int i=o;
+			int i = o;
 			while (buf[i]!=0 && i<eox) i++;
 			try {
 				if (xt==XT_STR)
-					cont = new REXPString(new String[] { new String(buf,o,i-o,RConnection.transferCharset) }, getAttr());
+					cont = new REXPString(new String[] { new String(buf, o, i-o, RConnection.transferCharset) }, getAttr());
 				else
-					cont = new REXPSymbol(new String(buf,o,i-o,RConnection.transferCharset));					
+					cont = new REXPSymbol(new String(buf, o, i-o, RConnection.transferCharset));					
 			} catch(Exception e) {
 				System.err.println("unable to convert string\n");
 				cont = null;
 			}
-			o=eox;
+			o = eox;
 			return o;
 		}
 	/*

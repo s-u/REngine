@@ -6,8 +6,13 @@ public class REXPGenericVector extends REXPVector {
 	public REXPGenericVector(RList list) {
 		super();
 		payload=(list==null)?new RList():list;
+		// automatically generate 'names' attribute
+		if (payload.isNamed())
+			attr = new REXPList(
+				new RList(new REXP[] { new REXPString(payload.keys()) },
+						  new String[] { "names" }));
 	}
-
+	
 	public REXPGenericVector(RList list, REXPList attr) {
 		super(attr);
 		payload=(list==null)?new RList():list;
@@ -17,4 +22,8 @@ public class REXPGenericVector extends REXPVector {
 
 	public boolean isList() { return true; }
 	public RList asList() { return payload; }
+	
+	public String toString() {
+		return super.toString()+(asList().isNamed()?"named":"");
+	}
 }
