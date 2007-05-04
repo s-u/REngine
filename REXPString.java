@@ -22,7 +22,7 @@ public class REXPString extends REXPVector {
 
 	public boolean isString() { return true; }
 
-	public String[] asStringArray() {
+	public String[] asStrings() {
 		return payload;
 	}
 	

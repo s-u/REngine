@@ -32,9 +32,9 @@ public class REXPReference extends REXP {
 	public boolean isSymbol() { return resolve().isSymbol(); }
 	
 	// basic accessor methods
-	public String[] asStringArray() throws REXPMismatchException { return resolve().asStringArray(); }
-	public int[] asIntegerArray() throws REXPMismatchException { return resolve().asIntegerArray(); }
-	public double[] asDoubleArray() throws REXPMismatchException { return resolve().asDoubleArray(); }
+	public String[] asStrings() throws REXPMismatchException { return resolve().asStrings(); }
+	public int[] asIntegers() throws REXPMismatchException { return resolve().asIntegers(); }
+	public double[] asDoubles() throws REXPMismatchException { return resolve().asDoubles(); }
 	public RList asList() throws REXPMismatchException { return resolve().asList(); }
 	
 	public REXPList _attr() { return resolve()._attr(); }

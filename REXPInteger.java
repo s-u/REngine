@@ -25,16 +25,16 @@ public class REXPInteger extends REXPVector {
 	public boolean isInteger() { return true; }
 	public boolean isNumeric() { return true; }
 
-	public int[] asIntegerArray() { return payload; }
+	public int[] asIntegers() { return payload; }
 
-	public double[] asDoubleArray() {
+	public double[] asDoubles() {
 		double[] d = new double[payload.length];
 		int i = 0;
 		while (i < payload.length) { d[i] = (double) payload[i]; i++; }
 		return d;
 	}
 
-	public String[] asStringArray() {
+	public String[] asStrings() {
 		String[] s = new String[payload.length];
 		int i = 0;
 		while (i < payload.length) { s[i] = ""+payload[i]; i++; }

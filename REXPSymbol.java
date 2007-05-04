@@ -12,7 +12,7 @@ public class REXPSymbol extends REXP {
 	
 	public String asString() { return name; }
 
-	public String[] asStringArray() {
+	public String[] asStrings() {
 		return new String[] { name };
 	}
 	

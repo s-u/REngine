@@ -19,5 +19,9 @@ Rserve.jar: $(RSRV_SRC) ../REngine.jar
 
 clean:
 	rm -rf org *~ protocol/*~ $(TARGETS)
+	make -C test clean
 
-.PHONY: clean all
+test:
+	make -C test test
+
+.PHONY: clean all test

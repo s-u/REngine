@@ -33,16 +33,16 @@ public class REXPLogical extends REXPVector {
 
 	public boolean isLogical() { return true; }
 
-	public int[] asIntegerArray() {
+	public int[] asIntegers() {
 		int[] a = new int[payload.length];
 		int i = 0;
 		while (i < payload.length) { a[i] = (int) payload[i]; i++; }
 		return a;
 	}
 
-	public byte[] asByteArray() { return payload; }
+	public byte[] asBytes() { return payload; }
 
-	public String[] asStringArray() {
+	public String[] asStrings() {
 		String[] s = new String[payload.length];
 		int i = 0;
 		while (i < payload.length) { s[i] = (payload[i]==0)?"false":((payload[i]==1)?"true":null); i++; }

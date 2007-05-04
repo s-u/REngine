@@ -17,16 +17,16 @@ public class REXPDouble extends REXPVector {
 
 	public boolean isNumeric() { return true; }
 
-	public double[] asDoubleArray() { return payload; }
+	public double[] asDoubles() { return payload; }
 
-	public int[] asIntegerArray() {
+	public int[] asIntegers() {
 		int[] a = new int[payload.length];
 		int i = 0;
 		while (i < payload.length) { a[i] = (int) payload[i]; i++; }
 		return a;
 	}
 
-	public String[] asStringArray() {
+	public String[] asStrings() {
 		String[] s = new String[payload.length];
 		int i = 0;
 		while (i < payload.length) { s[i] = ""+payload[i]; i++; }

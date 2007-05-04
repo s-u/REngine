@@ -278,7 +278,7 @@ public class REXPFactory {
 			// fixup for lists since they're stored as attributes of vectors
 			if (getAttr()!=null && getAttr().asList().at("names") != null) {
 				REXP nam = getAttr().asList().at("names");
-				RList l = new RList(v, nam.asStringArray());
+				RList l = new RList(v, nam.asStrings());
 				cont = new REXPGenericVector(l, getAttr());
 			} else
 				cont = new REXPGenericVector(new RList(v), getAttr());
@@ -430,14 +430,15 @@ public class REXPFactory {
 				break;
 			case XT_INT: l+=4; break;
 			case XT_DOUBLE: l+=8; break;
+			case XT_RAW: l+=4 + cont.asBytes().length; if ((l&3)>0) l=l-(l&3)+4; break;
 			case XT_STR:
 			case XT_SYMNAME:
 				l+=(cont==null)?1:(cont.asString().length()+1);
 				if ((l&3)>0) l=l-(l&3)+4;
 					break;
-			case XT_ARRAY_INT: l+=cont.asIntegerArray().length*4; break;
-			case XT_ARRAY_DOUBLE: l+=cont.asDoubleArray().length*8; break;
-			case XT_ARRAY_CPLX: l+=cont.asDoubleArray().length*8; break;
+			case XT_ARRAY_INT: l+=cont.asIntegers().length*4; break;
+			case XT_ARRAY_DOUBLE: l+=cont.asDoubles().length*8; break;
+			case XT_ARRAY_CPLX: l+=cont.asDoubles().length*8; break;
 			case XT_LIST_TAG:
 			case XT_LIST_NOTAG:
 			case XT_LIST:
@@ -463,7 +464,7 @@ public class REXPFactory {
 			}
 			case XT_ARRAY_STR:
 			{
-				String sa[] = cont.asStringArray();
+				String sa[] = cont.asStrings();
 				int i=0;
 				while (i<sa.length) {
 					if (sa[i]!=null) {
@@ -516,7 +517,7 @@ public class REXPFactory {
 			case XT_DOUBLE: RTalk.setLong(Double.doubleToLongBits(cont.asDouble()),buf,off); break;
 			case XT_ARRAY_INT:
 			{
-				int ia[]=cont.asIntegerArray();
+				int ia[]=cont.asIntegers();
 				int i=0, io=off;
 				while(i<ia.length) {
 					RTalk.setInt(ia[i++],buf,io); io+=4;
@@ -525,16 +526,23 @@ public class REXPFactory {
 			}
 			case XT_ARRAY_DOUBLE:
 			{
-				double da[]=cont.asDoubleArray();
+				double da[]=cont.asDoubles();
 				int i=0, io=off;
 				while(i<da.length) {
 					RTalk.setLong(Double.doubleToLongBits(da[i++]),buf,io); io+=8;
 				}
 				break;
 			}
+			case XT_RAW:
+			{
+				byte by[] = cont.asBytes();
+				RTalk.setInt(by.length, buf, off); off+=4;
+				System.arraycopy(by, 0, buf, off, by.length);
+				break;
+			}
 			case XT_ARRAY_STR:
 			{
-				String sa[] = cont.asStringArray();
+				String sa[] = cont.asStrings();
 				int i=0, io=off;
 				while (i<sa.length) {
 					if (sa[i]!=null) {

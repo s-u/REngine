@@ -61,7 +61,11 @@ public abstract class REngine {
 	}
     public REXP parseAndEval(String cmd) throws REngineException { return parseAndEval(cmd, null, true); };
 	
-	
+	//--- capabilities ---
+	public boolean supportsReferences() { return false; }
+	public boolean supportsEnvironemnts() { return false; }
+	public boolean supportsREPL() { return false; }
+
 	//--- convenience methods ---
 	public void assign(String symbol, double[] d) throws REngineException { assign(symbol, new REXPDouble(d), null); }
 	public void assign(String symbol, int[] d) throws REngineException { assign(symbol, new REXPInteger(d), null); }

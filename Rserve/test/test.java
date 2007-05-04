@@ -28,14 +28,14 @@ public class test {
 
 	    {
 			System.out.println("lowess test");
-			double x[] = c.eval("rnorm(100)").asDoubleArray();
-			double y[] = c.eval("rnorm(100)").asDoubleArray();
+			double x[] = c.eval("rnorm(100)").asDoubles();
+			double y[] = c.eval("rnorm(100)").asDoubles();
 			c.assign("x", x);
 			c.assign("y", y);
 			RList l = c.parseAndEval("lowess(x,y)").asList();
 			System.out.println(l);
-			x = l.at("x").asDoubleArray();
-			y = l.at("y").asDoubleArray();
+			x = l.at("x").asDoubles();
+			y = l.at("y").asDoubles();
 		}
 		
 		{
@@ -49,8 +49,18 @@ public class test {
             c.voidEval("m<-matrix(m,"+m+","+n+")");
             System.out.println("matrix: cross-product");
             double[][] mr=c.parseAndEval("crossprod(m,m)").asDoubleMatrix();
-		}			
-	} catch (RserveException rse) {
+		}
+		
+		{
+			System.out.println("test serialization and raw vectors");
+			byte[] b = c.eval("serialize(ls, NULL, ascii=FALSE)").asBytes();
+			System.out.println("serialized ls is "+b.length+" bytes long");
+			c.assign("r", new REXPRaw(b));
+			String[] s = c.eval("unserialize(r)()").asStrings();
+			System.out.println("we have "+s.length+" items in the workspace");
+		}
+		
+		} catch (RserveException rse) {
 	    System.out.println(rse);
 	} catch (REXPMismatchException mme) {
 	    System.out.println(mme);

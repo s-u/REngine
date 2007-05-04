@@ -17,5 +17,5 @@ public class REXPRaw extends REXPVector {
 
 	public boolean isRaw() { return true; }
 
-	public byte[] asByteArray() { return payload; }
+	public byte[] asBytes() { return payload; }
 }

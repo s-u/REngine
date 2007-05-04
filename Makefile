@@ -24,4 +24,7 @@ clean:
 	rm -rf org *~ $(TARGETS)
 	make -C Rserve clean
 
-.PHONY: clean all
+test:
+	make -C Rserve test
+
+.PHONY: clean all test

@@ -21,16 +21,16 @@ public class REXP {
 	public boolean isRaw() { return false; }
 	
 	// basic accessor methods
-	public String[] asStringArray() throws REXPMismatchException { throw new REXPMismatchException(this, "String"); }
-	public int[] asIntegerArray() throws REXPMismatchException { throw new REXPMismatchException(this, "int"); }
-	public double[] asDoubleArray() throws REXPMismatchException { throw new REXPMismatchException(this, "double"); }
-	public byte[] asByteArray() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
+	public String[] asStrings() throws REXPMismatchException { throw new REXPMismatchException(this, "String"); }
+	public int[] asIntegers() throws REXPMismatchException { throw new REXPMismatchException(this, "int"); }
+	public double[] asDoubles() throws REXPMismatchException { throw new REXPMismatchException(this, "double"); }
+	public byte[] asBytes() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
 
 	// convenience accessor methods
-	public int asInteger() throws REXPMismatchException { int[] i = asIntegerArray(); return i[0]; }
-	public double asDouble() throws REXPMismatchException { double[] d = asDoubleArray(); return d[0]; }
-	public String asString() throws REXPMismatchException { String[] s = asStringArray(); return s[0]; }
+	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
+	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
+	public String asString() throws REXPMismatchException { String[] s = asStrings(); return s[0]; }
 	
 	// methods common to all REXPs
 	public REXP getAttribute(String name) {
@@ -46,7 +46,7 @@ public class REXP {
 	
 	public int[] dim() {
 		try {
-			return hasAttribute("dim")?_attr().asList().at("dim").asIntegerArray():null;
+			return hasAttribute("dim")?_attr().asList().at("dim").asIntegers():null;
 		} catch (REXPMismatchException me) {
 		}
 		return null;
@@ -55,7 +55,7 @@ public class REXP {
 	public boolean inherits(String klass) {
 		if (!hasAttribute("class")) return false;
 		try {
-			String c[] = getAttribute("class").asStringArray();
+			String c[] = getAttribute("class").asStrings();
 			if (c != null) {
 				int i = 0;
 				while (i < c.length) {
@@ -82,10 +82,10 @@ public class REXP {
         <code>Matrix m=new Matrix(c.eval("matrix(c(1,2,3,4,5,6),2,3)").asDoubleMatrix());</code>
         @return 2D array of doubles in the form double[rows][cols] or <code>null</code> if the contents is no 2-dimensional matrix of doubles */
     public double[][] asDoubleMatrix() throws REXPMismatchException {
-		double[] ct = asDoubleArray();
+		double[] ct = asDoubles();
         REXP dim = getAttribute("dim");
         if (dim==null) throw new REXPMismatchException(this, "matrix (dim attribute missing)");
-        int[] ds = dim.asIntegerArray();
+        int[] ds = dim.asIntegers();
         if (ds.length!=2) throw new REXPMismatchException(this, "matrix (wrong dimensionality)");
 		int m = ds[0], n = ds[1];
         double[][] r=new double[m][n];
