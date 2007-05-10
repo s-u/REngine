@@ -1,7 +1,7 @@
 package org.rosuda.REngine;
 
 public class REXPInteger extends REXPVector {
-	private int[] payload;
+	protected int[] payload;
 	
 	public static final int NA = -2147483648;
 

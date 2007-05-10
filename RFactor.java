@@ -144,6 +144,10 @@ public class RFactor {
     /** returns the number of cases */
     public int size() { return ids.length; }
 
+	public String toString() {
+		return super.toString()+"["+ids.length+","+levels.length+"]";
+	}
+	
     /** displayable representation of the factor variable
     public String toString() {
 	//return "{"+((val==null)?"<null>;":("levels="+val.size()+";"))+((id==null)?"<null>":("cases="+id.size()))+"}";

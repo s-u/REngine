@@ -1,6 +1,10 @@
 import org.rosuda.REngine.*;
 import org.rosuda.REngine.Rserve.*;
 
+class TestException extends Exception {
+    public TestException(String msg) { super(msg); }
+}
+
 public class test {
     public static void main(String[] args) {
 	try {
@@ -25,6 +29,18 @@ public class test {
 			x = c.eval("z");
 			System.out.println("z = "+x);
 	    }
+
+            { // factors
+                System.out.println("test support of factors");
+                REXP f = c.eval("factor(paste('F',as.integer(runif(20)*5),sep=''))");
+                System.out.println("isFactor: "+f.isFactor()+"\nasFactor: "+f.asFactor());
+                if (!f.isFactor() || f.asFactor() == null) throw new TestException("factor test failed");
+                System.out.println("singe-level factor used to degenerate:");
+                f = c.eval("factor('foo')");
+                System.out.println("isFactor: "+f.isFactor()+"\nasFactor: "+f.asFactor());
+                if (!f.isFactor() || f.asFactor() == null) throw new TestException("single factor test failed");
+            }
+
 
 	    {
 			System.out.println("lowess test");
@@ -64,6 +80,10 @@ public class test {
 	    System.out.println(rse);
 	} catch (REXPMismatchException mme) {
 	    System.out.println(mme);
+	    mme.printStackTrace();
+        } catch(TestException te) {
+            System.err.println("** Test failed: "+te.getMessage());
+            te.printStackTrace();
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}

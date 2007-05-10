@@ -220,18 +220,20 @@ public class REXPFactory {
 				System.err.println("Warning: int array SEXP size mismatch\n");
 				o=eox;
 			}
-			cont = new REXPInteger(d, getAttr());
+			cont = null;
 			// hack for lists - special lists attached to int are factors
-			/*
-			 if (x.attr!=null) {
-				 REXP ca = x.attr.asList().at("class");
-				 if (ca != null && ca.asString() == "factor") {
-					 //RFactor f=new RFactor(d,(Vector)((RList)x.attr.cont).head.cont);
-					 //x.cont=f;
-					 //x.Xt=XT_FACTOR;
-					 //x.attr=null;
-				 }
-			 } */
+			try {
+			    if (getAttr()!=null) {
+				REXP ca = getAttr().asList().at("class");
+				REXP ls = getAttr().asList().at("levels");
+				if (ca != null && ls != null && ca.asString().equals("factor")) {
+				    cont = new REXPFactor(d, ls.asStrings(), getAttr());
+				    xt = XT_FACTOR;
+				}
+			    }
+			} catch (Exception e) {
+			}
+			if (cont == null) cont = new REXPInteger(d, getAttr());
 			return o;
 		}
         if (xt==XT_RAW) {

@@ -26,6 +26,7 @@ public class REXP {
 	public double[] asDoubles() throws REXPMismatchException { throw new REXPMismatchException(this, "double"); }
 	public byte[] asBytes() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
+	public RFactor asFactor() throws REXPMismatchException { throw new REXPMismatchException(this, "factor"); }
 
 	// convenience accessor methods
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
