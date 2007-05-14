@@ -32,13 +32,18 @@ public class test {
 
             { // factors
                 System.out.println("test support of factors");
-                REXP f = c.eval("factor(paste('F',as.integer(runif(20)*5),sep=''))");
+                REXP f = c.parseAndEval("factor(paste('F',as.integer(runif(20)*5),sep=''))");
                 System.out.println("isFactor: "+f.isFactor()+"\nasFactor: "+f.asFactor());
                 if (!f.isFactor() || f.asFactor() == null) throw new TestException("factor test failed");
                 System.out.println("singe-level factor used to degenerate:");
-                f = c.eval("factor('foo')");
+                f = c.parseAndEval("factor('foo')");
                 System.out.println("isFactor: "+f.isFactor()+"\nasFactor: "+f.asFactor());
-                if (!f.isFactor() || f.asFactor() == null) throw new TestException("single factor test failed");
+                if (!f.isFactor() || f.asFactor() == null) throw new TestException("single factor test failed (not a factor)");
+				if (!f.asFactor().at(0).equals("foo")) throw new TestException("single factor test failed (wrong value)");
+				c.assign("f", new REXPFactor(new RFactor(new String[] { "foo", "bar", "foo", "foo", null, "bar" })));
+				f = c.parseAndEval("f");
+                if (!f.isFactor() || f.asFactor() == null) throw new TestException("factor assign-eval test failed (not a factor)");
+				System.out.println("f = "+f.asFactor());
             }
 
 

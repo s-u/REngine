@@ -105,7 +105,7 @@ public class REXPFactory {
 			type = XT_VECTOR; // FIXME: may have to adjust names attr
 		} else if (r instanceof REXPS4) {
 			type = XT_S4;
-		} else if (r instanceof REXPInteger) {
+		} else if (r instanceof REXPInteger) { // this includes factor - FIXME: do we need speacial handling?
 			type = XT_ARRAY_INT;
 		} else if (r instanceof REXPDouble) {
 			type = XT_ARRAY_DOUBLE;
@@ -224,12 +224,13 @@ public class REXPFactory {
 			// hack for lists - special lists attached to int are factors
 			try {
 			    if (getAttr()!=null) {
-				REXP ca = getAttr().asList().at("class");
-				REXP ls = getAttr().asList().at("levels");
-				if (ca != null && ls != null && ca.asString().equals("factor")) {
-				    cont = new REXPFactor(d, ls.asStrings(), getAttr());
-				    xt = XT_FACTOR;
-				}
+					REXP ca = getAttr().asList().at("class");
+					REXP ls = getAttr().asList().at("levels");
+					if (ca != null && ls != null && ca.asString().equals("factor")) {
+						// R uses 1-based index, Java uses 0-based one
+						cont = new REXPFactor(d, ls.asStrings(), getAttr());
+						xt = XT_FACTOR;
+					}
 			    }
 			} catch (Exception e) {
 			}
