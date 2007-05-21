@@ -27,4 +27,7 @@ clean:
 test:
 	make -C Rserve test
 
+rc:	Rserve.jar Rserve/test/jt.java
+	make -C Rserve/test jt
+
 .PHONY: clean all test
