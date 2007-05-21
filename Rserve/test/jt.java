@@ -18,7 +18,7 @@ public class jt {
                     return;
                 } else {
 					REXP rx = c.parseAndEval(s);
-					System.out.println("result: "+rx);
+					System.out.println("result(debug): "+rx.toDebugString());
 				}
                 System.out.print("> ");
 			}

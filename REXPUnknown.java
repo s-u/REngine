@@ -6,4 +6,8 @@ public class REXPUnknown extends REXP {
 	public REXPUnknown(int type, REXPList attr) { super(attr); this.type=type; }
 	
 	public int getType() { return type; }
+	
+	public String toString() {
+		return super.toString()+"["+type+"]";
+	}
 }

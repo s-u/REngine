@@ -19,4 +19,8 @@ public class REXPSymbol extends REXP {
 	public String toString() {
 		return getClass().getName()+"["+name+"]";
 	}
+
+	public String toDebugString() {
+		return super.toDebugString()+"["+name+"]";
+	}
 }

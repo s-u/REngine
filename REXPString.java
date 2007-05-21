@@ -32,4 +32,16 @@ public class REXPString extends REXPVector {
 		while (i < a.length) { a[i] = (payload[i]==null); i++; }
 		return a;
 	}
+	
+	public String toDebugString() {
+		StringBuffer sb = new StringBuffer(super.toDebugString()+"{");
+		int i = 0;
+		while (i < payload.length && i < maxDebugItems) {
+			if (i>0) sb.append(",");
+			sb.append("\""+payload[i]+"\"");
+			i++;
+		}
+		if (i < payload.length) sb.append(",..");
+		return sb.toString()+"}";
+	}
 }

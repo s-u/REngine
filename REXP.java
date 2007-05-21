@@ -2,7 +2,7 @@ package org.rosuda.REngine;
 
 public class REXP {
 	protected REXPList attr;
-	
+
 	public REXP() { }
 	public REXP(REXPList attr) { this.attr=attr; }
 
@@ -82,6 +82,10 @@ public class REXP {
 		return super.toString()+((attr!=null)?"+":"");
 	}
 	
+	public String toDebugString() {
+		return (attr!=null)?(("<"+attr.toDebugString()+">")+super.toString()):super.toString();
+	}
+	
 	//======= complex convenience methods
 	/** returns the content of the REXP as a matrix of doubles (2D-array: m[rows][cols]). This is the same form as used by popular math packages for Java, such as 
 		JAMA. This means that following leads to desired results:<br>
@@ -130,4 +134,7 @@ public class REXP {
 											   "row.names"
 										   })));
 	}
+	
+	// other
+	public static int maxDebugItems = 32;
 }

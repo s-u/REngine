@@ -12,4 +12,8 @@ public abstract class REXPVector extends REXP {
 	public String toString() {
 		return super.toString()+"["+length()+"]";
 	}
+	
+	public String toDebugString() {
+		return super.toDebugString()+"["+length()+"]";
+	}
 }

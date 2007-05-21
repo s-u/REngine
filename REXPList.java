@@ -20,5 +20,19 @@ public class REXPList extends REXPVector {
 	
 	public String toString() {
 		return super.toString()+(asList().isNamed()?"named":"");
-	}	
+	}
+	
+	public String toDebugString() {
+		StringBuffer sb = new StringBuffer(super.toDebugString()+"{");
+		int i = 0;
+		while (i < payload.size() && i < maxDebugItems) {
+			if (i>0) sb.append(",\n");
+			String name = payload.keyAt(i);
+			if (name!=null) sb.append(name+"=");
+			sb.append(payload.at(i).toDebugString());
+			i++;
+		}
+		if (i < payload.size()) sb.append(",..");
+		return sb.toString()+"}";
+	}
 }

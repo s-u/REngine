@@ -46,5 +46,17 @@ public class REXPInteger extends REXPVector {
 		int i = 0;
 		while (i < a.length) { a[i] = (payload[i]==NA); i++; }
 		return a;
+	}
+	
+	public String toDebugString() {
+		StringBuffer sb = new StringBuffer(super.toDebugString()+"{");
+		int i = 0;
+		while (i < payload.length && i < maxDebugItems) {
+			if (i>0) sb.append(",");
+			sb.append(payload[i]);
+			i++;
+		}
+		if (i < payload.length) sb.append(",..");
+		return sb.toString()+"}";
 	}	
 }
