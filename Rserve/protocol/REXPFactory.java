@@ -101,6 +101,8 @@ public class REXPFactory {
 		} else if (r instanceof REXPList) {
 			RList l = r.asList();
 			type = l.isNamed()?XT_LIST_TAG:XT_LIST_NOTAG;
+			if (r instanceof REXPLanguage)
+				type = (type==XT_LIST_TAG)?XT_LANG_TAG:XT_LANG_NOTAG;
 		} else if (r instanceof REXPGenericVector) {
 			type = XT_VECTOR; // FIXME: may have to adjust names attr
 		} else if (r instanceof REXPS4) {
@@ -246,28 +248,31 @@ public class REXPFactory {
 			cont = new REXPRaw(d, getAttr());
             return o;
         }
-		if (xt==XT_LIST_NOTAG || xt==XT_LIST_TAG) {
+		if (xt==XT_LIST_NOTAG || xt==XT_LIST_TAG ||
+			xt==XT_LANG_NOTAG || xt==XT_LANG_TAG) {
 			REXPFactory lc = new REXPFactory();
 			REXPFactory nf = new REXPFactory();
 			RList l = new RList();
 			while (o<eox) {
 				String name = null;
 				o = lc.parseREXP(buf, o);
-				if (xt==XT_LIST_TAG) {
+				if (xt==XT_LIST_TAG || xt==XT_LANG_TAG) {
 					o = nf.parseREXP(buf, o);
 					name = nf.cont.asString();
 				}
 				if (name==null) l.add(lc.cont);
 				else l.put(name, lc.cont);
 			}
-			cont = new REXPList(l, getAttr());
+			cont = (xt==XT_LANG_NOTAG || xt==XT_LANG_TAG)?
+				new REXPLanguage(l, getAttr()):
+				new REXPList(l, getAttr());
 			if (o!=eox) {
 				System.err.println("Warning: int list SEXP size mismatch\n");
 				o=eox;
 			}
 			return o;
 		}
-		if (xt==XT_VECTOR) {
+		if (xt==XT_VECTOR || xt==XT_VECTOR_EXP) {
 			Vector v=new Vector(); //FIXME: could we use RList?
 			while(o<eox) {
 				REXPFactory xx=new REXPFactory();
@@ -282,10 +287,13 @@ public class REXPFactory {
 			if (getAttr()!=null && getAttr().asList().at("names") != null) {
 				REXP nam = getAttr().asList().at("names");
 				RList l = new RList(v, nam.asStrings());
-				cont = new REXPGenericVector(l, getAttr());
+				cont = (xt==XT_VECTOR_EXP)?
+					new REXPExpressionVector(l, getAttr()):
+					new REXPGenericVector(l, getAttr());
 			} else
-				cont = new REXPGenericVector(new RList(v), getAttr());
-				
+				cont = (xt==XT_VECTOR_EXP)?
+					new REXPExpressionVector(new RList(v), getAttr()):
+					new REXPGenericVector(new RList(v), getAttr());
 			return o;
 		}
 		if (xt==XT_ARRAY_STR) {
@@ -444,6 +452,8 @@ public class REXPFactory {
 			case XT_ARRAY_CPLX: l+=cont.asDoubles().length*8; break;
 			case XT_LIST_TAG:
 			case XT_LIST_NOTAG:
+			case XT_LANG_TAG:
+			case XT_LANG_NOTAG:
 			case XT_LIST:
 			case XT_VECTOR:
 			{
@@ -567,8 +577,11 @@ public class REXPFactory {
 			}
 			case XT_LIST_TAG:
 			case XT_LIST_NOTAG:
+			case XT_LANG_TAG:
+			case XT_LANG_NOTAG:
 			case XT_LIST:
 			case XT_VECTOR:
+			case XT_VECTOR_EXP:
 			{
 				int io = off;
 				final RList lst = cont.asList();
@@ -578,7 +591,7 @@ public class REXPFactory {
 						REXP x = lst.at(i);
 						if (x == null) x=new REXPNull();
 						io = new REXPFactory(x).getBinaryRepresentation(buf, io);
-						if (rxt == XT_LIST_TAG)
+						if (rxt == XT_LIST_TAG || rxt == XT_LANG_TAG)
 							io = new REXPFactory(new REXPSymbol(lst.keyAt(i))).getBinaryRepresentation(buf, io);
 						i++;
 					}

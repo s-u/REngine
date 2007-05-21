@@ -16,9 +16,11 @@ public class REXP {
 	public boolean isLogical() { return false; }
 	public boolean isEnvironment() { return false; }
 	public boolean isLanguage() { return false; }
+	public boolean isExpression() { return false; }
 	public boolean isSymbol() { return false; }
 	public boolean isVector() { return false; }
 	public boolean isRaw() { return false; }
+	public boolean isComplex() { return false; }
 	
 	// basic accessor methods
 	public String[] asStrings() throws REXPMismatchException { throw new REXPMismatchException(this, "String"); }
@@ -27,7 +29,7 @@ public class REXP {
 	public byte[] asBytes() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
 	public RFactor asFactor() throws REXPMismatchException { throw new REXPMismatchException(this, "factor"); }
-
+	
 	// convenience accessor methods
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
 	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
@@ -44,6 +46,9 @@ public class REXP {
 		final REXPList a = _attr();
 		return (a!=null && a.isList() && a.asList().at(name)!=null);
 	}
+	
+	
+	// helper methods common to all REXPs
 	
 	public int[] dim() {
 		try {
