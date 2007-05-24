@@ -58,7 +58,13 @@ public class test {
 			x = l.at("x").asDoubles();
 			y = l.at("y").asDoubles();
 		}
-		
+
+	    {
+		// multi-line expressions
+		System.out.println("Test multi-line expressions");
+		if (c.eval("{ a=1:10\nb=11:20\nmean(b-a) }\n").asInteger()!=10)
+		    throw new TestException("multi-line test failed.");
+	    }
 		{
             System.out.println("matrix: create a matrix");
             int m=100, n=100;
