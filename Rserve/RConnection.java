@@ -1,7 +1,7 @@
 package org.rosuda.REngine.Rserve;
 
 // JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
-// Copyright (C) 2004-06 Simon Urbanek
+// Copyright (C) 2004-08 Simon Urbanek
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
 
 import java.util.*;
@@ -52,14 +52,16 @@ public class RConnection extends REngine {
     }
 
     /** make a new connection to specified host and given port.
-	Make sure you check {@link #isConnected} and/or {@link #isOk}.
-	@param host host name/IP
-	@param port TCP port
-    */
+	 * Make sure you check {@link #isConnected} to ensure the connection was successfully created.
+	 * @param host host name/IP
+	 * @param port TCP port
+	 */
     public RConnection(String host, int port) throws RserveException {
 		this(host, port, null);
     }
 
+	/** restore a connection based on a previously detached session
+	 * @param session detached session object */
     RConnection(RSession session) throws RserveException {
 		this(null, 0, session);
     }
@@ -168,8 +170,7 @@ public class RConnection extends REngine {
     
     /** evaluates the given command, but does not fetch the result (useful for assignment
 	operations)
-	@param cmd command/expression string
-	@return <code>true</code> if successful */
+	@param cmd command/expression string */
     public void voidEval(String cmd) throws RserveException {
 		if (!connected || rt==null)
 			throw new RserveException(this,"Not connected");
@@ -232,7 +233,6 @@ public class RConnection extends REngine {
     /** assign a string value to a symbol in R. The symbol is created if it doesn't exist already.
         @param sym symbol name. Currently assign uses CMD_setSEXP command of Rserve, i.e. the symbol value is NOT parsed. It is the responsibility of the user to make sure that the symbol name is valid in R (recall the difference between a symbol and an expression!). In fact R will always create the symbol, but it may not be accessible (examples: "bar\nfoo" or "bar$foo").
         @param ct contents
-        @return <code>true</code> on success, otherwise <code>false</code>
         */
     public void assign(String sym, String ct) throws RserveException {
 		if (!connected || rt==null)
@@ -257,10 +257,9 @@ public class RConnection extends REngine {
     }
 
     /** assign a content of a REXP to a symbol in R. The symbol is created if it doesn't exist already.
-        @param sym symbol name. Currently assign uses CMD_setSEXP command of Rserve, i.e. the symbol value is NOT parsed. It is the responsibility of the user to make sure that the symbol name is valid in R (recall the difference between a symbol and an expression!). In fact R will always create the symbol, but it may not be accessible (examples: "bar\nfoo" or "bar$foo").
-        @param ct contents. currently only basic types (int, double, int[], double[]) are supported.
-        @return <code>true</code> on success, otherwise <code>false</code>
-        */
+     * @param sym symbol name. Currently assign uses CMD_setSEXP command of Rserve, i.e. the symbol value is NOT parsed. It is the responsibility of the user to make sure that the symbol name is valid in R (recall the difference between a symbol and an expression!). In fact R will always create the symbol, but it may not be accessible (examples: "bar\nfoo" or "bar$foo").
+	 * @param rexp contents
+	 */
 public void assign(String sym, REXP rexp) throws RserveException {
 	if (!connected || rt==null)
 	    throw new RserveException(this,"Not connected");
@@ -300,8 +299,7 @@ public void assign(String sym, REXP rexp) throws RserveException {
     }
 
     /** remove a file on the Rserve
-        @param fn file name. should not contain any path delimiters, since Rserve may restrict the access to local working directory.
-        @return <code>true</code> on success, <code>false</code> otherwise */
+        @param fn file name. should not contain any path delimiters, since Rserve may restrict the access to local working directory. */
     public void removeFile(String fn) throws RserveException {
 		if (!connected || rt==null)
 			throw new RserveException(this,"Not connected");
@@ -310,8 +308,7 @@ public void assign(String sym, REXP rexp) throws RserveException {
         throw new RserveException(this,"removeFile failed",rp);
     }
 
-    /** shutdown remote Rserv. Note that some Rserves cannot be shut down from
-	client side (forked version). */
+    /** shutdown remote Rserve. Note that some Rserves cannot be shut down from the client side. */
     public void shutdown() throws RserveException {
 		if (!connected || rt==null)
 			throw new RserveException(this,"Not connected");
@@ -337,8 +334,7 @@ public void assign(String sym, REXP rexp) throws RserveException {
     /** login using supplied user/pwd. Note that login must be the first
 	command if used
 	@param user username
-	@param pwd password
-	@return returns <code>true</code> on success */
+	@param pwd password */
     public void login(String user, String pwd) throws RserveException {
 		if (!authReq) return;
 		if (!connected || rt==null)

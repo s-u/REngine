@@ -1,8 +1,7 @@
 package org.rosuda.REngine;
 
-// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
-// Copyright (C) 2004,2007 Simon Urbanek
-// --- for licensing information see LICENSE file in the original JRclient distribution ---
+// REngine library - Java client interface to R
+// Copyright (C) 2004,2007,2008 Simon Urbanek
 
 import java.util.*;
 
@@ -20,9 +19,8 @@ public class RList extends Vector implements List {
     /** constructs an empty list */
     public RList() { super(); names=null; }
 
-    /** constructs an initialized list
-	@param h head xpression
-	@param b body xpression */
+    /** constructs an initialized, unnamed list
+	 * @param contents - an array of {@link REXP}s to use as contents of this list */
     public RList(REXP[] contents) {
 	super(contents.length);
 	int i=0;
@@ -37,11 +35,16 @@ public class RList extends Vector implements List {
 	if (hasNames) names=new Vector(initSize);
     }
     
+    /** constructs an initialized, unnamed list
+	 * @param contents - a {@link Collection} of {@link REXP}s to use as contents of this list */
     public RList(Collection contents) {
 	super(contents);
 	names=null;
     }
 
+    /** constructs an initialized, named list. The length of the contents vector determines the length of the list.
+	 * @param contents - an array of {@link REXP}s to use as contents of this list
+	 * @param names - an array of {@link String}s to use as names */
     public RList(REXP[] contents, String[] names) {
 	this(contents);
 	if (names!=null && names.length>0) {
@@ -52,6 +55,9 @@ public class RList extends Vector implements List {
 	}
     }
     
+    /** constructs an initialized, named list. The size of the contents collection determines the length of the list.
+	 * @param contents - a {@link Collection} of {@link REXP}s to use as contents of this list
+	 * @param names - an array of {@link String}s to use as names */
     public RList(Collection contents, String[] names) {
 	this(contents);
 	if (names!=null && names.length>0) {
@@ -62,6 +68,9 @@ public class RList extends Vector implements List {
 	}
     }
 
+    /** constructs an initialized, named list. The size of the contents collection determines the length of the list.
+	 * @param contents - a {@link Collection} of {@link REXP}s to use as contents of this list
+	 * @param names - an {@link Collection} of {@link String}s to use as names */
     public RList(Collection contents, Collection names) {
 	this(contents);
 	if (names!=null && names.size()>0) {
@@ -70,14 +79,16 @@ public class RList extends Vector implements List {
 	}
     }
 
+	/** checks whether this list is named or unnamed
+	 * @return <code>true</code> if this list is named, <code>false</code> otherwise */
     public boolean isNamed() {
 	return names!=null;
     }
 
     /** get xpression given a key
 	@param v key
-	@return xpression which corresponds to the given key or
-	        <code>null</code> if list is not standartized or key not found */
+	@return value which corresponds to the given key or
+	        <code>null</code> if the list is unnamed or key not found */
     public REXP at(String v) {
 	if (names==null) return null;
 	int i = names.indexOf(v);
@@ -87,8 +98,7 @@ public class RList extends Vector implements List {
 
     /** get element at the specified position
 	@param i index
-	@return xpression at the index or <code>null</code> if list is not standartized or
-	        if index out of bounds */
+	@return value at the index or <code>null</code> if the index is out of bounds */
     public REXP at(int i) {
 	return (i>=0 && i<size())?(REXP)elementAt(i):null;
     }
@@ -98,7 +108,7 @@ public class RList extends Vector implements List {
     }
 
     /** returns all keys of the list
-	@return array containing all keys or <code>null</code> if list is not standartized */
+	 * @return array containing all keys or <code>null</code> if list unnamed */
     public String[] keys() {
 	if (names==null) return null;
 	int i = 0;

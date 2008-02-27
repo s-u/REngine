@@ -1,9 +1,18 @@
 package org.rosuda.REngine;
 
+/** Basic class representing an object of any type in R. Each type in R in represented by a specific subclass.
+ <p>
+ This class defines basic accessor methods (<tt>as</tt><i>XXX</i>), type check methods (<tt>is</tt><i>XXX</i>), gives access to attributes ({@link #getAttribute}, {@link #hasAttribute}) as well as several convenience methods. If a given method is not applicable to a particular type, it will throw the {@link REXPMismatchException} exception.
+ <p>This root class will throw on any accessor call and returns <code>false</code> for all type methods. This allows subclasses to override accessor and type methods selectively.
+ */
 public class REXP {
+	/** attribute list. This attribute should never be accessed directly. */
 	protected REXPList attr;
 
+	/** public root contrsuctor, same as <tt>new REXP(null)</tt> */
 	public REXP() { }
+	/** public root constructor
+	 @param attr attribute list object (can be <code>null</code> */
 	public REXP(REXPList attr) { this.attr=attr; }
 
 	// type checks
@@ -36,12 +45,19 @@ public class REXP {
 	public String asString() throws REXPMismatchException { String[] s = asStrings(); return s[0]; }
 	
 	// methods common to all REXPs
+	
+	/** retrieve an attribute of the given name from this object
+	 * @param name attribute name
+	 * @return attribute value or <code>null</code> if the attribute does not exist */
 	public REXP getAttribute(String name) {
 		final REXPList a = _attr();
 		if (a==null || !a.isList()) return null;
 		return a.asList().at(name);
 	}
 	
+	/** checks whether this obejct has a given attribute
+	 * @param name attribute name
+	 * @return <code>true</code> if the attribute exists, <code>false</code> otherwise */
 	public boolean hasAttribute(String name) {
 		final REXPList a = _attr();
 		return (a!=null && a.isList() && a.asList().at(name)!=null);
@@ -50,6 +66,8 @@ public class REXP {
 	
 	// helper methods common to all REXPs
 	
+	/** returns dimensions of the object (as determined by the "<code>dim</code>" attribute)
+	 * @return an array of integers with corresponding dimensions or <code>null</code> if the object has no dimension attribute */
 	public int[] dim() {
 		try {
 			return hasAttribute("dim")?_attr().asList().at("dim").asIntegers():null;
@@ -58,6 +76,9 @@ public class REXP {
 		return null;
 	}
 	
+	/** determines whether this object inherits from a given class in tha same fashion as the <code>inherits()</code> function in R does (i.e. ignoring S4 inheritance)
+	 * @param klass class name
+	 * @return <code>true</code> if this object is of the class <code>klass</code>, <code>false</code> otherwise */
 	public boolean inherits(String klass) {
 		if (!hasAttribute("class")) return false;
 		try {
@@ -74,14 +95,16 @@ public class REXP {
 		return false;
 	}
 
-	/** attr should never be used directly incase the REXP implements a lazy
-		access (e.g. via a reference) */
+	/** this method allows a limited access to object's attributes. {@link #getAttribute} should be used instead to access specific attributes. Note that the {@link #attr} attribute should never be used directly incase the REXP implements a lazy access (e.g. via a reference)
+	    @return list of attributes or <code>null</code> if the object has no attributes
+	 */
 	public REXPList _attr() { return attr; }
 	
 	public String toString() {
 		return super.toString()+((attr!=null)?"+":"");
 	}
 	
+	/** returns representation that it useful for debugging (e.g. it includes attributes) */
 	public String toDebugString() {
 		return (attr!=null)?(("<"+attr.toDebugString()+">")+super.toString()):super.toString();
 	}
@@ -114,7 +137,10 @@ public class REXP {
 	
 	
 	//======= tools
-	
+	/** creates a data frame object from a list object using integer row names
+	 *  @param l a (named) list of vectors ({@link REXPVector} subclasses), each element corresponds to a column and all elements must have the same length
+	 *  @return a data frame object
+	 *  @throws REXPMismatchException if the list is empty or any of the elements is not a vector */
 	public static REXP createDataFrame(RList l) throws REXPMismatchException {
 		if (l==null || l.size()<1) throw new REXPMismatchException(new REXPList(l), "data frame (must have dim>0)");
 		if (!(l.at(0) instanceof REXPVector)) throw new REXPMismatchException(new REXPList(l), "data frame (contents must be vectors)");

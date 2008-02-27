@@ -6,6 +6,8 @@ TARGETS=REngine.jar Rserve.jar
 all: $(TARGETS)
 
 JAVAC=javac
+JAVADOC=javadoc
+JDFLAGS=-author -version -breakiterator -link http://java.sun.com/j2se/1.4.2/docs/api/
 JFLAGS+=-source 1.4 -target 1.4
 
 REngine.jar: $(RENG_SRC)
@@ -29,5 +31,10 @@ test:
 
 rc:	Rserve.jar Rserve/test/jt.java
 	make -C Rserve/test jt
+
+doc:	$(RENG_SRC) $(RSRV_SRC)
+	rm -rf $@
+	mkdir $@
+	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
 .PHONY: clean all test

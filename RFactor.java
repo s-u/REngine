@@ -6,7 +6,7 @@ package org.rosuda.REngine;
 
 import java.util.*;
 
-/** representation of a factor variable. In R there is no actual xpression
+/** representation of a factor variable. In R there is no actual object
     type called "factor", instead it is coded as an int vector with a list
     attribute. The parser code of REXP converts such constructs directly into
     the RFactor objects and defines an own XT_FACTOR type 
@@ -145,7 +145,7 @@ public class RFactor {
 		return -1;
 	}
 	
-	/** return the list of levels (0-based, use {@link indexBase()} correction if you want to access it by level index) */
+	/** return the list of levels (0-based, use {@link #indexBase} correction if you want to access it by level index) */
 	public String[] levels() {
 		return levels;
 	}

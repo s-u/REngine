@@ -126,7 +126,6 @@ public class REXPFactory {
 	}
 
     /** parses byte buffer for binary representation of xpressions - read one xpression slot (descends recursively for aggregated xpressions such as lists, vectors etc.)
-		@param x xpression object to store the parsed xpression in
 		@param buf buffer containing the binary representation
 		@param o offset in the buffer to start at
         @return position just behind the parsed xpression. Can be use for successive calls to {@link #parseREXP} if more than one expression is stored in the binary array. */
