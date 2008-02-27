@@ -11,6 +11,15 @@ public class test {
 	    RConnection c = new RConnection();
 
 	    System.out.println(">>"+c.eval("R.version$version.string").asString()+"<<");
+
+		{
+			System.out.println("Test string retrieval...");
+			RList l = c.eval("{d=data.frame(\"huhu\",c(11:20)); lapply(d,as.character)}").asList();
+			int cols = l.size();
+			int rows = l.at(0).length();
+			String[][] s = new String[cols][];
+			for (int i=0; i<cols; i++) s[i]=l.at(i).asStrings();
+		}
 		
 	    {
 			System.out.println("Test assigning of lists and vectors ...");
