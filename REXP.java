@@ -38,7 +38,12 @@ public class REXP {
 	public byte[] asBytes() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
 	public RFactor asFactor() throws REXPMismatchException { throw new REXPMismatchException(this, "factor"); }
-	
+
+	/** returns the length of a vector object. Note that we use R semantics here, i.e. a matrix will have a length of <i>m * n</i> since it is represented by a single vector (see {@link #dim} for retrieving matrix and multidimentional-array dimensions).
+	 * @return length (number of elements) in a vector object
+	 * @throws REXPMismatchException if this is not a vector object */
+	public int length() throws REXPMismatchException { throw new REXPMismatchException(this, "vector"); }
+
 	// convenience accessor methods
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
 	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
