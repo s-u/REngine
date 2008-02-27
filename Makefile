@@ -23,7 +23,7 @@ Rserve.jar: $(RSRV_SRC) REngine.jar
 	rm -rf org
 
 clean:
-	rm -rf org *~ $(TARGETS)
+	rm -rf org *~ $(TARGETS) doc
 	make -C Rserve clean
 
 test:
