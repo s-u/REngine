@@ -258,7 +258,7 @@ public class REXPFactory {
 				o = lc.parseREXP(buf, o);
 				if (xt==XT_LIST_TAG || xt==XT_LANG_TAG) {
 					o = nf.parseREXP(buf, o);
-					name = nf.cont.asString();
+					if (nf.cont.isSymbol() || nf.cont.isString()) name = nf.cont.asString();
 				}
 				if (name==null) l.add(lc.cont);
 				else l.put(name, lc.cont);
