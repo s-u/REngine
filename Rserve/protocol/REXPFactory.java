@@ -1,7 +1,7 @@
 package org.rosuda.REngine.Rserve.protocol;
 
 // JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
-// Copyright (C) 2004 Simon Urbanek
+// Copyright (C) 2004-8 Simon Urbanek
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
 
 import java.util.*;
@@ -84,7 +84,8 @@ public class REXPFactory {
 	int type;
 	REXPFactory attr;
 	REXP cont;
-
+	RList rootList;
+	
     public REXP getREXP() { return cont; }
     public REXPList getAttr() { return (attr==null)?null:(REXPList)attr.cont; }
 	
@@ -271,6 +272,34 @@ public class REXPFactory {
 			}
 			return o;
 		}
+		if (xt==XT_LIST || xt==XT_LANG) { //old-style lists, for comaptibility with older Rserve versions - rather inefficient since we have to convert the recusively stored structures into a flat structure
+			boolean isRoot = false;
+			if (rootList == null) {
+				rootList = new RList();
+				isRoot = true;
+			}
+			REXPFactory headf = new REXPFactory();
+			REXPFactory tagf = new REXPFactory();
+			o = headf.parseREXP(buf, o);
+			int elIndex = rootList.size();
+			rootList.add(headf.cont);
+			//System.out.println("HEAD="+headf.cont);
+			o = parseREXP(buf, o); // we use ourselves recursively for the body
+			if (o < eox) {
+				o = tagf.parseREXP(buf, o);
+				//System.out.println("TAG="+tagf.cont);
+				if (tagf.cont != null && (tagf.cont.isString() || tagf.cont.isSymbol()))
+					rootList.setKeyAt(elIndex, tagf.cont.asString());
+			}
+			if (isRoot) {
+				cont = (xt==XT_LIST)?
+				new REXPList(rootList, getAttr()):
+				new REXPLanguage(rootList, getAttr());
+				rootList = null;
+				//System.out.println("result="+cont);
+			}
+			return o;
+		}
 		if (xt==XT_VECTOR || xt==XT_VECTOR_EXP) {
 			Vector v=new Vector(); //FIXME: could we use RList?
 			while(o<eox) {
@@ -285,7 +314,15 @@ public class REXPFactory {
 			// fixup for lists since they're stored as attributes of vectors
 			if (getAttr()!=null && getAttr().asList().at("names") != null) {
 				REXP nam = getAttr().asList().at("names");
-				RList l = new RList(v, nam.asStrings());
+				String names[] = null;
+				if (nam.isString()) names = nam.asStrings();
+				else if (nam.isVector()) { // names could be a vector if supplied by old Rserve
+					RList l = nam.asList();
+					Object oa[] = l.toArray();
+					names = new String[oa.length];
+					for(int i = 0; i < oa.length; i++) names[i] = ((REXP)oa[i]).asString();
+				}
+				RList l = new RList(v, names);
 				cont = (xt==XT_VECTOR_EXP)?
 					new REXPExpressionVector(l, getAttr()):
 					new REXPGenericVector(l, getAttr());
@@ -348,27 +385,6 @@ public class REXPFactory {
 			o = eox;
 			return o;
 		}
-	/*
-	if (xt==XT_LIST || xt==XT_LANG) {
-	    RList rl=new RList();
-	    rl.head=new REXP();
-	    rl.body=new REXP();
-	    rl.tag=null;
-	    o=parseREXP(rl.head,buf,o); // CAR
-	    o=parseREXP(rl.body,buf,o); // CDR
-	    if (o!=eox) {
-		// if there is more data then it's presumably the TAG entry
-		rl.tag=new REXP();
-		o=parseREXP(rl.tag,buf,o);
-		if (o!=eox) {
-		    System.out.println("Warning: list SEXP size mismatch\n");
-		    o=eox;
-		}
-	    };
-	    x.cont=rl;
-	    return o;
-	    };*/
-
 		if (xt==XT_SYM) {
 			REXPFactory sym = new REXPFactory();
 			o = sym.parseREXP(buf, o); // PRINTNAME that's all we will use

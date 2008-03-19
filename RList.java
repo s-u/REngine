@@ -103,9 +103,23 @@ public class RList extends Vector implements List {
 	return (i>=0 && i<size())?(REXP)elementAt(i):null;
     }
 
+	/** return the key (name) at a given index
+	 @param i index
+	 @return ket at the index - can be <code>null</code> is the list is unnamed or the index is out of range */
     public String keyAt(int i) {
 	return (names==null || i<0 || i>=names.size())?null:(String)names.get(i);
     }
+
+	/** set key at the given index. Using this method automatically makes the list a named one even if the key is <code>null</code>. Out of range operations are undefined (currently no-ops)
+	 @param i index
+	 @param value key name */
+	public void setKeyAt(int i, String value) {
+		if (i < 0) return;
+		if (names==null)
+			names = new Vector();
+		if (names.size() < size()) names.setSize(size());
+		if (i < size()) names.add(i, value);
+	}
 
     /** returns all keys of the list
 	 * @return array containing all keys or <code>null</code> if list unnamed */
@@ -125,6 +139,13 @@ public class RList extends Vector implements List {
 	names.add(index, null);
     }
 
+	public boolean add(Object element) {
+		super.add(element);
+		if (names != null)
+			names.add(null);
+		return true;
+	}
+	
     public boolean addAll(Collection c) {
 	boolean ch = super.addAll(c);
 	if (names==null) return ch;
@@ -287,6 +308,6 @@ public class RList extends Vector implements List {
 	
 	// other
 	public String toString() {
-		return super.toString()+"{"+(isNamed()?"named,":"")+size()+"}";
+		return "RList"+super.toString()+"{"+(isNamed()?"named,":"")+size()+"}";
 	}
 }

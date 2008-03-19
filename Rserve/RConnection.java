@@ -212,6 +212,7 @@ public class RConnection extends REngine {
 				rx.parseREXP(pc, rxo);
 				return rx.getREXP();
 			} catch (REXPMismatchException me) {
+				me.printStackTrace();
 				throw new RserveException(this, "Error when parsing response: "+me.getMessage());
 			}
 		}
