@@ -256,7 +256,7 @@ public class RList extends Vector implements List {
 		return super.set(p, value);
 	}
 	int i = size();
-	add(value);
+	super.add(value);
 	if (names==null)
 	    names = new Vector(i+1);
 	while (names.size() < i) names.add(null);
