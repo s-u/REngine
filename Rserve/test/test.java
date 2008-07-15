@@ -22,6 +22,18 @@ public class test {
 		}
 		
 	    {
+		System.out.println("Test NA/NaN support in double vectors...");
+		double R_NA = Double.longBitsToDouble(0x7ff00000000007a2L);
+		// int R_NA_int = -2147483648; // just for completeness
+		double x[] = { 1.0, 0.5, R_NA, Double.NaN, 3.5 };
+		c.assign("x",x);
+		String nas = c.eval("paste(capture.output(print(x)),collapse='\\n')").asString();
+		System.out.println(nas);
+		if (!nas.equals("[1] 1.0 0.5  NA NaN 3.5"))
+		    throw new TestException("NA/NaN assign+retrieve test failed");
+	    }
+		
+	    {
 			System.out.println("Test assigning of lists and vectors ...");
 			RList l = new RList();
 			l.put("a",new REXPInteger(new int[] { 0,1,2,3}));

@@ -542,7 +542,7 @@ public class REXPFactory {
 			case XT_NULL:
 				break;
 			case XT_INT: RTalk.setInt(cont.asInteger(),buf,off); break;
-			case XT_DOUBLE: RTalk.setLong(Double.doubleToLongBits(cont.asDouble()),buf,off); break;
+			case XT_DOUBLE: RTalk.setLong(Double.doubleToRawLongBits(cont.asDouble()),buf,off); break;
 			case XT_ARRAY_INT:
 			{
 				int ia[]=cont.asIntegers();
@@ -557,7 +557,7 @@ public class REXPFactory {
 				double da[]=cont.asDoubles();
 				int i=0, io=off;
 				while(i<da.length) {
-					RTalk.setLong(Double.doubleToLongBits(da[i++]),buf,io); io+=8;
+					RTalk.setLong(Double.doubleToRawLongBits(da[i++]),buf,io); io+=8;
 				}
 				break;
 			}
