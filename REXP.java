@@ -30,13 +30,20 @@ public class REXP {
 	public boolean isVector() { return false; }
 	public boolean isRaw() { return false; }
 	public boolean isComplex() { return false; }
-	
+	public boolean isRecursive() { return false; }
+
 	// basic accessor methods
+	/** returns the contents as an array of Strings (if supported by the represented object) */
 	public String[] asStrings() throws REXPMismatchException { throw new REXPMismatchException(this, "String"); }
+	/** returns the contents as an array of integers (if supported by the represented object) */
 	public int[] asIntegers() throws REXPMismatchException { throw new REXPMismatchException(this, "int"); }
+	/** returns the contents as an array of doubles (if supported by the represented object) */
 	public double[] asDoubles() throws REXPMismatchException { throw new REXPMismatchException(this, "double"); }
+	/** returns the contents as an array of bytes (if supported by the represented object) */
 	public byte[] asBytes() throws REXPMismatchException { throw new REXPMismatchException(this, "byte"); }
+	/** returns the contents as a (named) list (if supported by the represented object) */
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
+	/** returns the contents as a factor (if supported by the represented object) */
 	public RFactor asFactor() throws REXPMismatchException { throw new REXPMismatchException(this, "factor"); }
 
 	/** returns the length of a vector object. Note that we use R semantics here, i.e. a matrix will have a length of <i>m * n</i> since it is represented by a single vector (see {@link #dim} for retrieving matrix and multidimentional-array dimensions).
@@ -45,8 +52,11 @@ public class REXP {
 	public int length() throws REXPMismatchException { throw new REXPMismatchException(this, "vector"); }
 
 	// convenience accessor methods
+	/** convenience method corresponding to <code>asIntegers()[0]</code> */
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
+	/** convenience method corresponding to <code>asDoubles()[0]</code> */
 	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
+	/** convenience method corresponding to <code>asStrings()[0]</code> */
 	public String asString() throws REXPMismatchException { String[] s = asStrings(); return s[0]; }
 	
 	// methods common to all REXPs
@@ -166,6 +176,6 @@ public class REXP {
 										   })));
 	}
 	
-	// other
+	/** specifies how many items of a vector or list will be displayed in {@link #toDebugString} */
 	public static int maxDebugItems = 32;
 }

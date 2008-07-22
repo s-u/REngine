@@ -21,6 +21,9 @@ public class REXPGenericVector extends REXPVector {
 	public int length() { return payload.size(); }
 
 	public boolean isList() { return true; }
+
+	public boolean isRecursive() { return true; }
+
 	public RList asList() { return payload; }
 	
 	public String toString() {

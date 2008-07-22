@@ -1,7 +1,22 @@
 package org.rosuda.REngine;
 
+/** REXPDouble represents a vector of double precision floating point values. */
 public class REXPDouble extends REXPVector {
 	private double[] payload;
+	
+	/** NA real value as defined in R. Note: it can NOT be used in comparisons, you must use {@link #isNA(double)} instead. */
+	public static final double NA = Double.longBitsToDouble(0x7ff00000000007a2L);
+	
+	/** checks whether a given double value is a NA representation in R. Note that NA is NaN but not all NaNs are NA. */
+	public static boolean isNA(double value) {
+		return Double.doubleToRawLongBits(value) == 0x7ff00000000007a2L;
+	}
+
+	/** create real vector of the length 1 with the given value as its first (and only) element */
+	public REXPDouble(double load) {
+		super();
+		payload=new double[] { load };
+	}
 	
 	public REXPDouble(double[] load) {
 		super();
@@ -15,10 +30,13 @@ public class REXPDouble extends REXPVector {
 	
 	public int length() { return payload.length; }
 
+	/** return <code>true</code> */
 	public boolean isNumeric() { return true; }
 
+	/** returns the values represented by this vector */
 	public double[] asDoubles() { return payload; }
 
+	/** converts the values of this vector into integers by cast */
 	public int[] asIntegers() {
 		int[] a = new int[payload.length];
 		int i = 0;
@@ -26,6 +44,7 @@ public class REXPDouble extends REXPVector {
 		return a;
 	}
 
+	/** converts the values of this vector into strings */
 	public String[] asStrings() {
 		String[] s = new String[payload.length];
 		int i = 0;
@@ -33,10 +52,11 @@ public class REXPDouble extends REXPVector {
 		return s;
 	}
 	
+	/** returns a boolean vector of the same length as this vector with <code>true</code> for NA values and <code>false</code> for any other values (including NaNs) */
 	public boolean[] isNA() {
 		boolean a[] = new boolean[payload.length];
-		int i = 0; // FIXME: not quite true, will flag NaN as NA as well
-		while (i < a.length) { a[i] = Double.isNaN(payload[i]); i++; }
+		int i = 0;
+		while (i < a.length) { a[i] = isNA(payload[i]); i++; }
 		return a;
 	}
 	
