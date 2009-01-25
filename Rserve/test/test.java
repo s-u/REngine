@@ -55,7 +55,27 @@ public class test {
 			System.out.println("  z = "+x);
 			System.out.println("PASSED");
 	    }
-
+		{ // regression: object bit was not set for generated objects before 0.5-3
+			System.out.println("* Testing functionality of assembled S3 objects ...");
+			// we have already assigned the data.frame in previous test, so we re-use it
+			REXP x = c.parseAndEval("z[2,2]");
+			System.out.println("  z[2,2] = " + x);
+			if (x == null || x.length() != 1 || x.asDouble() != 1.2)
+				throw new TestException("S3 object bit regression test failed");
+			System.out.println("PASSED");
+		}
+		
+		{ // this test does a pull and push of a data frame. It will fail when the S3 test above failed.
+			System.out.println("* Testing pass-though capability for data.frames ...");
+			REXP df = c.parseAndEval("{data(iris); iris}");
+			c.assign("df", df);
+			REXP x = c.eval("identical(df, iris)");
+			System.out.println("  identical(df, iris) = "+x);
+			if (x == null || !x.isLogical() || x.length() != 1 || !((REXPLogical)x).isTrue()[0])
+				throw new TestException("Pass-through test for a data.frame failed");
+			System.out.println("PASSED");
+		}
+		
             { // factors
                 System.out.println("* Test support of factors");
                 REXP f = c.parseAndEval("factor(paste('F',as.integer(runif(20)*5),sep=''))");
