@@ -45,6 +45,7 @@ public class RTalk {
     public static final int CMD_assignSEXP=0x021;
     
     public static final int CMD_setBufferSize=0x081;
+    public static final int CMD_setEncoding=0x082;
 
     public static final int CMD_detachSession=0x030;
     public static final int CMD_detachedVoidEval=0x031;

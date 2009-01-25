@@ -332,6 +332,26 @@ public void assign(String sym, REXP rexp) throws RserveException {
         throw new RserveException(this,"setSendBufferSize failed",rp);        
     }
 
+    /** set string encoding for this session. It is strongly
+     * recommended to make sure the encoding is always set to UTF-8
+     * because that is the only encoding supported by this Java
+     * client. It can be done either by uisng the
+     * <code>encoding</code> option in the server or by calling
+     * setStringEncoding("utf8") at the beginning of a session (but
+     * after login).
+     @param enc name of the encoding as defined by Rserve - as of
+     Rserve version 0.5-3 valid values are "utf8", "latin1" and
+     "native" (case-sensitive)
+     @since Rserve 0.5-3
+    */
+    public void setStringEncoding(String enc) throws RserveException {
+        if (!connected || rt==null)
+			throw new RserveException(this,"Not connected");
+	RPacket rp = rt.request(RTalk.CMD_setEncoding, enc);
+	if (rp != null && rp.isOk()) return;
+	throw new RserveException(this,"setStringEncoding failed", rp);
+    }
+
     /** login using supplied user/pwd. Note that login must be the first
 	command if used
 	@param user username

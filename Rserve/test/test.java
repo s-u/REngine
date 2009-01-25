@@ -55,9 +55,9 @@ public class test {
 			System.out.println("  z = "+x);
 			System.out.println("PASSED");
 	    }
-		{ // regression: object bit was not set for generated objects before 0.5-3
+		{ // regression: object bit was not set for Java-side generated objects before 0.5-3
 			System.out.println("* Testing functionality of assembled S3 objects ...");
-			// we have already assigned the data.frame in previous test, so we re-use it
+			// we have already assigned the data.frame in previous test, so we jsut re-use it
 			REXP x = c.parseAndEval("z[2,2]");
 			System.out.println("  z[2,2] = " + x);
 			if (x == null || x.length() != 1 || x.asDouble() != 1.2)
@@ -140,6 +140,22 @@ public class test {
 			c.assign("r", new REXPRaw(b));
 			String[] s = c.eval("unserialize(r)()").asStrings();
 			System.out.println("  we have "+s.length+" items in the workspace");
+			System.out.println("PASSED");
+		}
+		
+		
+		{ // string encoding test (will work with Rserve 0.5-3 and higher only)
+			System.out.println("* Test string encoding support ...");
+			String t = "ひらがな"; // hiragana (literally, in hiragana ;))
+			c.setStringEncoding("utf8");
+			// -- Just in case the console is not UTF-8 don't display it
+			//System.out.println("  unicode text: "+t);
+			c.assign("s", t);
+			REXP x = c.parseAndEval("nchar(s)");
+			System.out.println("  nchar = " + x);
+			if (x == null || !x.isInteger() || x.asInteger() != 4)
+				throw new TestException("UTF-8 encoding string length test failed");
+			// we cannot really test any other encoding ..
 			System.out.println("PASSED");
 		}
 		
