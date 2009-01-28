@@ -1,8 +1,8 @@
 JAVA=java
 JAVAC=javac
-JFLAGS+=-source 1.4 -target 1.4
+JFLAGS+=-encoding utf8 -source 1.4 -target 1.4
 
-all: test
+all: test PlotDemo.class StartRserve.class
 
 ../Rserve.jar: ../../REngine.jar
 	$(MAKE) -C .. Rserve.jar
@@ -27,6 +27,9 @@ jt: jt.class ../Rserve.jar ../../REngine.jar
 
 jt.class: jt.java ../Rserve.jar ../../REngine.jar
 	$(JAVAC) $(JFLAGS) -d . -cp ../Rserve.jar:../../REngine.jar:. jt.java
+
+StartRserve.class: StartRserve.java ../Rserve.jar ../../REngine.jar
+	$(JAVAC) $(JFLAGS) -d . -cp ../Rserve.jar:../../REngine.jar:. StartRserve.java
 
 clean:
 	rm -rf org *~ *.class
