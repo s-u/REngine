@@ -12,25 +12,33 @@ public class REXPEnvironment extends REXP {
 	
 	public boolean isEnvironment() { return true; }
 	
-	Object getHandle() { return handle; }
+	public Object getHandle() { return handle; }
 	
 	public REXP get(String name, boolean resolve) throws REngineException {
-		return eng.get(name, this, resolve);
+		try {
+			return eng.get(name, this, resolve);
+		} catch (REXPMismatchException e) { // this should never happen because this is always guaranteed to be REXPEnv
+			throw(new REngineException(eng, "REXPMismatchException:"+e+" in get()"));
+		}
 	}
 
 	public REXP get(String name) throws REngineException {
 		return get(name, true);
 	}
 	
-	public void assign(String name, REXP value) throws REngineException {
+	public void assign(String name, REXP value) throws REngineException, REXPMismatchException {
 		eng.assign(name, value, this);
 	}
 	
 	public REXP parent(boolean resolve) throws REngineException {
-		return eng.getParentEnvironment(this, resolve);
+		try {
+			return eng.getParentEnvironment(this, resolve);
+		} catch (REXPMismatchException e) { // this should never happen because this is always guaranteed to be REXPEnv
+			throw(new REngineException(eng, "REXPMismatchException:"+e+" in parent()"));
+		}
 	}
 
 	public REXPEnvironment parent() throws REngineException {
-		return (REXPEnvironment) eng.getParentEnvironment(this, true);
+		return (REXPEnvironment) parent(true);
 	}
 }

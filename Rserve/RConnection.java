@@ -161,11 +161,13 @@ public class RConnection extends REngine {
     }
     
     /** closes current connection */
-    public void close() {
+    public boolean close() {
         try {
-            if (s!=null) s.close();
-            connected=false;
+            if (s != null) s.close();
+            connected = false;
+			return true;
         } catch(Exception e) { };
+		return false;
     }
     
     /** evaluates the given command, but does not fetch the result (useful for assignment
@@ -453,7 +455,14 @@ public REXP get(String symbol, REXP env, boolean resolve) throws REngineExceptio
 public REXP resolveReference(REXP ref) throws REngineException {
 	throw new REngineException(this, "Rserve doesn't support references");
 }
-
+	
+	public REXP createReference(REXP ref) throws REngineException {
+		throw new REngineException(this, "Rserve doesn't support references");
+	}
+	public void finalizeReference(REXP ref) throws REngineException {
+		throw new REngineException(this, "Rserve doesn't support references");
+	}
+	
 public REXP getParentEnvironment(REXP env, boolean resolve) throws REngineException {
 	throw new REngineException(this, "Rserve doesn't support environments other than .GlobalEnv");
 }

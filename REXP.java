@@ -22,6 +22,7 @@ public class REXP {
 	public boolean isNull() { return false; }
 	public boolean isFactor() { return false; }
 	public boolean isList() { return false; }
+	public boolean isPairList() { return false; }
 	public boolean isLogical() { return false; }
 	public boolean isEnvironment() { return false; }
 	public boolean isLanguage() { return false; }
@@ -31,6 +32,7 @@ public class REXP {
 	public boolean isRaw() { return false; }
 	public boolean isComplex() { return false; }
 	public boolean isRecursive() { return false; }
+	public boolean isReference() { return false; }
 
 	// basic accessor methods
 	/** returns the contents as an array of Strings (if supported by the represented object) */

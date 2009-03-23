@@ -8,6 +8,8 @@ public class REXPReference extends REXP {
 	REngine eng;
 	/** an opaque (optional) handle */
 	Object handle;
+	/** resolved (cached) object */
+	REXP resolvedValue;
 
 	/** create an external REXP reference using given engine and handle. The handle value is just an (optional) identifier not used by the implementation directly. */
 	public REXPReference(REngine eng, Object handle) {
@@ -16,16 +18,34 @@ public class REXPReference extends REXP {
 		this.handle = handle;
 	}
 	
-	/** resolve the external REXP reference into an actual REXP object. */
+	/** resolve the external REXP reference into an actual REXP object. In addition, the value (if not <code>null</code>) will be cached for subsequent calls to <code>resolve</code> until <code>invalidate</code> is called. */
 	public REXP resolve() {
+		if (resolvedValue != null)
+			return resolvedValue;
 		try {
-			return eng.resolveReference(this);
+			resolvedValue = eng.resolveReference(this);
+			return resolvedValue;
+		} catch (REXPMismatchException me) {
+			// this should never happen since we are REXPReference
 		} catch(REngineException ee) {
 			// FIXME: what to we do?
 		}
 		return null;
 	}
 
+	/** invalidates any cached representation of the reference */
+	public void invalidate() {
+		resolvedValue = null;
+	}
+	
+	/** finalization that notifies the engine when a reference gets collected */
+	protected void finalize() throws Throwable {
+		try {
+			eng.finalizeReference(this);
+		} finally {
+			super.finalize();
+		}
+	}	
 	// type checks
 	public boolean isString() { return resolve().isString(); }
 	public boolean isNumeric() { return resolve().isNumeric(); }
@@ -41,6 +61,7 @@ public class REXPReference extends REXP {
 	public boolean isRaw() { return resolve().isRaw(); }
 	public boolean isComplex() { return resolve().isComplex(); }
 	public boolean isRecursive() { return resolve().isRecursive(); }
+	public boolean isReference() { return true; }
 
 	// basic accessor methods
 	public String[] asStrings() throws REXPMismatchException { return resolve().asStrings(); }

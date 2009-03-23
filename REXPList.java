@@ -17,6 +17,7 @@ public class REXPList extends REXPVector {
 	public int length() { return payload.size(); }
 
 	public boolean isList() { return true; }
+	public boolean isPairList() { return true; }
 
 	public boolean isRecursive() { return true; }
 
