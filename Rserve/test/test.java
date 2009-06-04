@@ -55,6 +55,31 @@ public class test {
 			System.out.println("  z = "+x);
 			System.out.println("PASSED");
 	    }
+		{
+			System.out.println("* Test support for logicals ... ");
+			System.out.println("  assign b={true,false,true}");
+			c.assign("b", new REXPLogical(new boolean[] { true, false, true }));
+			REXP x = c.parseAndEval("b");
+			System.out.println("  " + ((x != null) ? x.toDebugString() : "NULL"));
+			if (!x.isLogical() || x.length() != 3)
+				throw new TestException("boolean array assign+retrieve test failed");
+			boolean q[] = ((REXPLogical)x).isTRUE();
+			if (q[0] != true || q[1] != false || q[2] != true)
+				throw new TestException("boolean array assign+retrieve test failed (value mismatch)");
+			System.out.println("  get c(TRUE,FLASE,NA)");
+			x = c.parseAndEval("c(TRUE,FALSE,NA)");
+			System.out.println("  " + ((x != null) ? x.toDebugString() : "NULL"));
+			if (!x.isLogical() || x.length() != 3)
+				throw new TestException("boolean array NA test failed");
+			boolean q1[] = ((REXPLogical)x).isTRUE();
+			boolean q2[] = ((REXPLogical)x).isFALSE();
+			boolean q3[] = ((REXPLogical)x).isNA();
+			if (q1[0] != true || q1[1] != false || q1[2] != false ||
+				q2[0] != false || q2[1] != true || q2[2] != false ||
+				q3[0] != false || q3[1] != false || q3[2] != true)
+				throw new TestException("boolean array NA test failed (value mismatch)");
+		}
+
 		{ // regression: object bit was not set for Java-side generated objects before 0.5-3
 			System.out.println("* Testing functionality of assembled S3 objects ...");
 			// we have already assigned the data.frame in previous test, so we jsut re-use it

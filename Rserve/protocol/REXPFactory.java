@@ -174,6 +174,7 @@ public class REXPFactory {
 		}
 		if (xt==XT_BOOL) {
 			byte b[] = new byte[] { buf[o] };
+			if (b[0] != 0 && b[0] != 1) b[0] = REXPLogical.NA;
 			cont = new REXPLogical(b, getAttr());
 			o++;
 			if (o!=eox) {
@@ -188,6 +189,7 @@ public class REXPFactory {
 			byte[] d=new byte[as];
 			System.arraycopy(buf,o,d,0,eox-o);
 			o = eox;
+			for (int j = 0; j < d.length; j++) if (d[j] != 0 && d[j] != 1) d[j] = REXPLogical.NA;
 			cont = new REXPLogical(d, getAttr());
 			return o;
 		}
@@ -196,6 +198,7 @@ public class REXPFactory {
             o+=4;
             byte[] d=new byte[as];
 			System.arraycopy(buf,o,d,0,as);
+			for (int j = 0; j < d.length; j++) if (d[j] != 0 && d[j] != 1) d[j] = REXPLogical.NA;
 			o = eox;
 			cont = new REXPLogical(d, getAttr());
             return o;
@@ -465,6 +468,7 @@ public class REXPFactory {
 			case XT_ARRAY_INT: l+=cont.asIntegers().length*4; break;
 			case XT_ARRAY_DOUBLE: l+=cont.asDoubles().length*8; break;
 			case XT_ARRAY_CPLX: l+=cont.asDoubles().length*8; break;
+			case XT_ARRAY_BOOL: l += cont.asBytes().length + 4; if ((l & 3) > 0) l = l - (l & 3) + 4; break;
 			case XT_LIST_TAG:
 			case XT_LIST_NOTAG:
 			case XT_LANG_TAG:
@@ -549,6 +553,19 @@ public class REXPFactory {
 				int i=0, io=off;
 				while(i<ia.length) {
 					RTalk.setInt(ia[i++],buf,io); io+=4;
+				}
+				break;
+			}
+			case XT_ARRAY_BOOL:
+			{
+				byte ba[] = cont.asBytes();
+				int io = off;
+				RTalk.setInt(ba.length, buf, io);
+				io += 4;
+				if (ba.length > 0) {
+					for(int i =0; i < ba.length; i++)
+						buf[io++] = (byte) ( (ba[i] == REXPLogical.NA) ? 2 : ((ba[i] == REXPLogical.FALSE) ? 0 : 1) );
+					while ((io & 3) != 0) buf[io++] = 3;
 				}
 				break;
 			}
