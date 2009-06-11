@@ -436,8 +436,27 @@ public class JRIEngine extends REngine {
 		return true;
 	}
 
+	/** attempts to obtain a lock for this R engine synchronously (without waiting for it).
+	 @return 0 if the lock could not be obtained (R is busy) and some other value otherwise (1 = lock obtained, 2 = the current thread already holds a lock) -- the returned value must be used in a matching call to {@link #unlock(int)}. */
+	public synchronized int tryLock() {
+		int res = rniMutex.tryLock();
+		return (res == 1) ? 0 : ((res == -1) ? 2 : 1);
+	}
+	
+	/** obains a lock for this R engine, waiting until it becomes available.
+	 @return value that must be passed to {@link #unlock} in order to release the lock */
+	public synchronized int lock() {
+		return rniMutex.safeLock() ? 1 : 2;
+	}
+	
+	/** releases a lock previously obtained by {@link #lock()} or {@link #tryLock()}.
+	 @param lockValue value returned by {@link #lock()} or {@link #tryLock()}. */	 
+	public synchronized void unlock(int lockValue) {
+		if (lockValue == 1) rniMutex.unlock();
+	}
+	
 	public boolean supportsReferences() { return true; }
 	public boolean supportsEnvironemnts() { return true; }
 	// public boolean supportsREPL() { return true; }
-
+	public boolean supportsLocking() { return true; }
 }

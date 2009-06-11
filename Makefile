@@ -1,5 +1,6 @@
 RENG_SRC=$(wildcard *.java)
 RSRV_SRC=$(wildcard Rserve/*.java) $(wildcard Rserve/protocol/*.java)
+JRI_SRC=$(wildcard JRI/*.java)
 
 TARGETS=REngine.jar Rserve.jar
 
@@ -33,7 +34,7 @@ test:
 rc:	Rserve.jar Rserve/test/jt.java
 	make -C Rserve/test jt
 
-doc:	$(RENG_SRC) $(RSRV_SRC)
+doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	rm -rf $@
 	mkdir $@
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
