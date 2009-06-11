@@ -68,15 +68,23 @@ public class JRIEngine extends REngine {
 		return jriEngine;
 	}
 	
+	public Rengine getRni() {
+		return rni;
+	}
+	
 	/** deafault constructor - this constructor is also used via <code>createEngine</code> factory call and implies --no-save R argument */
 	public JRIEngine() throws REngineException {
-		this(new String[] { "--no-save" });
+		this(new String[] { "--no-save" },null);
 	}
 	
 	public JRIEngine(String args[]) throws REngineException {
+		this(args,null);
+	}
+	
+	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
 		// the default modus operandi is without event loop and with --no-save option
 		rniMutex = new Mutex();
-		rni = new Rengine(args, false, null);
+		rni = new Rengine(args, callbacks==null?false:true, callbacks);
 		if (!rni.waitForR())
 			throw(new REngineException(this, "Unable to initialize R"));
 		if (rni.rniGetVersion() < 0x109)
