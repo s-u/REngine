@@ -57,7 +57,10 @@ public class JRIEngine extends REngine {
 	long R_UnboundValue, R_NilValue;
 	
 	/** special, global references */
-	public REXPReference globalEnv, emptyEnv, baseEnv, nullValue;
+	public REXPReference globalEnv, emptyEnv, baseEnv, nullValueRef;
+	
+	/** canonical NULL object */
+	public REXPNull nullValue;
 	
 	/** factory method called by <code>engineForClass</code> 
 	 @return new or current engine (new if there is none, current otherwise since R allows only one engine at any time) */
@@ -90,9 +93,10 @@ public class JRIEngine extends REngine {
 		if (rni.rniGetVersion() < 0x109)
 			throw(new REngineException(this, "R JRI engine is too old - RNI API 1.9 (JRI 0.5) or newer is required"));
 		globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-		nullValue = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+		nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
 		emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
 		baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+		nullValue = new REXPNull();
 		R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
 	}
 	
@@ -139,7 +143,7 @@ public class JRIEngine extends REngine {
 		long rho = 0;
 		if (env != null && !env.isReference()) throw(new REXPMismatchException(env, "reference (environment)"));
 		if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
-		if (value == null) value = nullValue;
+		if (value == null) value = nullValueRef;
 		if (!value.isReference())
 			value = createReference(value); // if value is not a reference, we have to create one
 		boolean obtainedLock = rniMutex.safeLock();
@@ -176,7 +180,7 @@ public class JRIEngine extends REngine {
 		if (ref == null) throw(new REngineException(this, "resolveReference called on NULL input"));
 		if (!ref.isReference()) throw(new REXPMismatchException(ref, "reference"));
 		long ptr = ((Long)((REXPReference)ref).getHandle()).longValue();
-		if (ptr == 0) return new REXPNull();
+		if (ptr == 0) return nullValue;
 		return resolvePointer(ptr);
 	}
 
