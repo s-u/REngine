@@ -2,6 +2,9 @@ package org.rosuda.REngine;
 
 import java.lang.reflect.Method;
 
+/** REngine is an abstract base class for all implementations of R engines. Subclasses can implement interfaces to R in many different ways.
+ Clients should always use methods this class instead of its direct subclasses in order to maintian compatibility with any R engine implementation.
+ The canonical way of obtaining a new engine is to call {@link #engineForClass}. All subclasses must implement <code>createEngine()</code> method. */
 public abstract class REngine {
     /** last created engine or <code>null</code> if there is none */
     protected static REngine lastEngine = null;
@@ -25,12 +28,13 @@ public abstract class REngine {
 
 	/** parse a string into an expression vector
 		@param text string to parse
-		@param resolve resolve the resulting REXP or just return a reference */
+		@param resolve resolve the resulting REXP (<code>true</code>) or just return a reference (<code>false</code>)
+	    @return parsed expression */
 	public abstract REXP parse(String text, boolean resolve) throws REngineException;
 
 	/** evaluate an expression vector
 		@param what an expression (or vector of such) to evaluate
-		@param where environment to evaluate in (or <code>null</code> for global env)
+		@param where environment to evaluate in (use <code>null</code> for the global environemnt and/or if environments are not supported by the engine)
 		@param resolve resolve the resulting REXP or just return a reference
 		@return the result of the evaluation of the last expression */
     public abstract REXP eval(REXP what, REXP where, boolean resolve) throws REngineException, REXPMismatchException;
@@ -38,29 +42,28 @@ public abstract class REngine {
 	/** assign into an environment
 		@param symbol symbol name
 		@param value value to assign
-		@param env environment to assign to */
+		@param env environment to assign to (use <code>null</code> for the global environemnt and/or if environments are not supported by the engine) */
     public abstract void assign(String symbol, REXP value, REXP env) throws REngineException, REXPMismatchException;
 
 	/** get a value from an environment
 		@param symbol symbol name
-		@param env environment
+		@param env environment (use <code>null</code> for the global environemnt and/or if environments are not supported by the engine)
 		@param resolve resolve the resulting REXP or just return a reference		
 		@return value */
     public abstract REXP get(String symbol, REXP env, boolean resolve) throws REngineException, REXPMismatchException;
 
-	/** fetch the contents of the given reference. The resulting REXP may never be REXPReference.
+	/** fetch the contents of the given reference. The resulting REXP may never be REXPReference. The engine should raise a {@link #REngineException} exception if {@link #supportsReferences()} returns <code>false</code>.
 		@param ref reference to resolve
 		@return resolved reference */
 	public abstract REXP resolveReference(REXP ref) throws REngineException, REXPMismatchException;
 
-	/** create a reference by pushing local data to R and returning a reference to the data. If ref is a reference it is returned as-is.
+	/** create a reference by pushing local data to R and returning a reference to the data. If ref is a reference it is returned as-is. The engine should raise a {@link #REngineException} exception if {@link #supportsReferences()} returns <code>false</code>.
 	 @param value to create reference to
 	 @return reference to the value */
-
 	public abstract REXP createReference(REXP value) throws REngineException, REXPMismatchException;
+
 	/** removes reference from the R side. This method is called automatically by the finalizer of <code>REXPReference</code> and should never be called directly.
 	 @param ref reference to finalize */
-
 	public abstract void finalizeReference(REXP ref) throws REngineException, REXPMismatchException;
 	
 	/** get the parent environemnt of an environemnt
@@ -90,6 +93,8 @@ public abstract class REngine {
 	 @return result */
     public REXP parseAndEval(String cmd) throws REngineException, REXPMismatchException { return parseAndEval(cmd, null, true); };
 	
+	/** performs a close operation on engines that support it. The engine may not be used after <code>close()</code> returned <code>true</code>. This operation is optional and will always return <code>false</code> if not implemented.
+	 @return <code>true</code> if the close opetaion was successful, <code>false</code> otherwise.
 	public boolean close() { return false; }
 	
 	//--- capabilities ---
@@ -107,29 +112,47 @@ public abstract class REngine {
 	public boolean supportsLocking() { return false; }
 
 	//--- convenience methods --- (the REXPMismatchException catches should be no-ops since the value type is guaranteed in the call to assign)
+	/** convenience method equivalent to <code>assign(symbol, new REXPDouble(d), null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param d values to assign */
 	public void assign(String symbol, double[] d) throws REngineException { try { assign(symbol, new REXPDouble(d), null); } catch (REXPMismatchException e) { throw(new REngineException(this, "REXPMismatchException in assign(,double[]): "+e)); } }
+	/** convenience method equivalent to <code>assign(symbol, new REXPInteger(d), null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param d values to assign */
 	public void assign(String symbol, int[] d) throws REngineException { try { assign(symbol, new REXPInteger(d), null); } catch (REXPMismatchException e) { throw(new REngineException(this, "REXPMismatchException in assign(,int[]): "+e)); } }
+	/** convenience method equivalent to <code>assign(symbol, new REXPString(d), null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param d values to assign */
 	public void assign(String symbol, String[] d) throws REngineException { try { assign(symbol, new REXPString(d), null); } catch (REXPMismatchException e) { throw(new REngineException(this, "REXPMismatchException in assign(,String[]): "+e)); } }
+	/** convenience method equivalent to <code>assign(symbol, new REXPRaw(d), null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param d values to assign */
 	public void assign(String symbol, byte[] d) throws REngineException { try { assign(symbol, new REXPRaw(d), null); } catch (REXPMismatchException e) { throw(new REngineException(this, "REXPMismatchException in assign(,byte[]): "+e)); } }
+	/** convenience method equivalent to <code>assign(symbol, new REXPString(d), null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param d value to assign */
 	public void assign(String symbol, String d) throws REngineException { try { assign(symbol, new REXPString(d), null); } catch (REXPMismatchException e) { throw(new REngineException(this, "REXPMismatchException in assign(,String[]): "+e)); } }
+	/** convenience method equivalent to <code>assign(symbol, value, null)</code> (see {@link #assign(String, REXP, REXP)})
+	 @param symbol symbol name to assign to
+	 @param value values to assign */
 	public void assign(String symbol, REXP value) throws REngineException, REXPMismatchException { assign(symbol, value, null); }
 	
 	//--- locking API ---
 	/** attempts to obtain a lock for this R engine synchronously (without waiting for it).
-	    <br>Note: check for {@link #supportsLocking()} before relying on this capability.
+	    <br>Note: check for {@link #supportsLocking()} before relying on this capability. If not implemented, always returns 0.
 	 @return 0 if the lock could not be obtained (R engine is busy) and some other value otherwise -- the returned value must be used in a matching call to {@link #unlock(int)}. */
 	public synchronized int tryLock() { return 0; }
 
 	/** obains a lock for this R engine, waiting until it becomes available.
-	 <br>Note: check for {@link #supportsLocking()} before relying on this capability.
+	 <br>Note: check for {@link #supportsLocking()} before relying on this capability. If not implemented, always returns 0.
 	 @return value that must be passed to {@link #unlock} in order to release the lock */
 	public synchronized int lock() { return 0; }
 
 	/** releases a lock previously obtained by {@link #lock()} or {@link #tryLock()}.
-	 <br>Note: check for {@link #supportsLocking()} before relying on this capability.
+	 <br>Note: check for {@link #supportsLocking()} before relying on this capability.  If not implemented, has no effect.
 	 @param lockValue value returned by {@link #lock()} or {@link #tryLock()}. */	 
 	public synchronized void unlock(int lockValue) {}
-		
+
 	public String toString() {
 		return super.toString()+((lastEngine==this)?"{last}":"");
 	}

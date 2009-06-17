@@ -16,22 +16,56 @@ public class REXP {
 	public REXP(REXPList attr) { this.attr=attr; }
 
 	// type checks
+	/** check whether the <code>REXP</code> object is a character vector (string)
+	 @return <code>true</code> if the receiver is a character vector, <code>false</code> otherwise */
 	public boolean isString() { return false; }
+	/** check whether the <code>REXP</code> object is a numeric vector
+	 @return <code>true</code> if the receiver is a numeric vector, <code>false</code> otherwise */
 	public boolean isNumeric() { return false; }
+	/** check whether the <code>REXP</code> object is an integer vector
+	 @return <code>true</code> if the receiver is an integer vector, <code>false</code> otherwise */
 	public boolean isInteger() { return false; }
+	/** check whether the <code>REXP</code> object is NULL
+	 @return <code>true</code> if the receiver is NULL, <code>false</code> otherwise */
 	public boolean isNull() { return false; }
+	/** check whether the <code>REXP</code> object is a factor
+	 @return <code>true</code> if the receiver is a factor, <code>false</code> otherwise */
 	public boolean isFactor() { return false; }
+	/** check whether the <code>REXP</code> object is a list (either generic vector or a pairlist - i.e. {@link #asList()} will succeed)
+	 @return <code>true</code> if the receiver is a generic vector or a pair-list, <code>false</code> otherwise */
 	public boolean isList() { return false; }
+	/** check whether the <code>REXP</code> object is a pair-list
+	 @return <code>true</code> if the receiver is a pair-list, <code>false</code> otherwise */
 	public boolean isPairList() { return false; }
+	/** check whether the <code>REXP</code> object is a logical vector
+	 @return <code>true</code> if the receiver is a logical vector, <code>false</code> otherwise */
 	public boolean isLogical() { return false; }
+	/** check whether the <code>REXP</code> object is an environment
+	 @return <code>true</code> if the receiver is an environment, <code>false</code> otherwise */
 	public boolean isEnvironment() { return false; }
+	/** check whether the <code>REXP</code> object is a language object
+	 @return <code>true</code> if the receiver is a language object, <code>false</code> otherwise */
 	public boolean isLanguage() { return false; }
+	/** check whether the <code>REXP</code> object is an expression vector
+	 @return <code>true</code> if the receiver is an expression vector, <code>false</code> otherwise */
 	public boolean isExpression() { return false; }
+	/** check whether the <code>REXP</code> object is a symbol
+	 @return <code>true</code> if the receiver is a symbol, <code>false</code> otherwise */
 	public boolean isSymbol() { return false; }
+	/** check whether the <code>REXP</code> object is a vector
+	 @return <code>true</code> if the receiver is a vector, <code>false</code> otherwise */
 	public boolean isVector() { return false; }
+	/** check whether the <code>REXP</code> object is a raw vector
+	 @return <code>true</code> if the receiver is a raw vector, <code>false</code> otherwise */
 	public boolean isRaw() { return false; }
+	/** check whether the <code>REXP</code> object is a complex vector
+	 @return <code>true</code> if the receiver is a complex vector, <code>false</code> otherwise */
 	public boolean isComplex() { return false; }
+	/** check whether the <code>REXP</code> object is a recursive obejct
+	 @return <code>true</code> if the receiver is a recursive object, <code>false</code> otherwise */
 	public boolean isRecursive() { return false; }
+	/** check whether the <code>REXP</code> object is a reference to an R object
+	 @return <code>true</code> if the receiver is a reference, <code>false</code> otherwise */
 	public boolean isReference() { return false; }
 
 	// basic accessor methods
@@ -54,13 +88,16 @@ public class REXP {
 	public int length() throws REXPMismatchException { throw new REXPMismatchException(this, "vector"); }
 
 	// convenience accessor methods
-	/** convenience method corresponding to <code>asIntegers()[0]</code> */
+	/** convenience method corresponding to <code>asIntegers()[0]</code>
+	 @return first entry returned by {@link #asInteger} */
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
-	/** convenience method corresponding to <code>asDoubles()[0]</code> */
+	/** convenience method corresponding to <code>asDoubles()[0]</code>
+	 @return first entry returned by {@link #asDoubles} */
 	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
-	/** convenience method corresponding to <code>asStrings()[0]</code> */
+	/** convenience method corresponding to <code>asStrings()[0]</code>
+	 @return first entry returned by {@link #asStrings} */
 	public String asString() throws REXPMismatchException { String[] s = asStrings(); return s[0]; }
-	
+
 	// methods common to all REXPs
 	
 	/** retrieve an attribute of the given name from this object
@@ -93,7 +130,7 @@ public class REXP {
 		return null;
 	}
 	
-	/** determines whether this object inherits from a given class in tha same fashion as the <code>inherits()</code> function in R does (i.e. ignoring S4 inheritance)
+	/** determines whether this object inherits from a given class in the same fashion as the <code>inherits()</code> function in R does (i.e. ignoring S4 inheritance)
 	 * @param klass class name
 	 * @return <code>true</code> if this object is of the class <code>klass</code>, <code>false</code> otherwise */
 	public boolean inherits(String klass) {
@@ -112,16 +149,20 @@ public class REXP {
 		return false;
 	}
 
-	/** this method allows a limited access to object's attributes. {@link #getAttribute} should be used instead to access specific attributes. Note that the {@link #attr} attribute should never be used directly incase the REXP implements a lazy access (e.g. via a reference)
+	/** this method allows a limited access to object's attributes - <b>{@link #getAttribute} should be used instead to access specific attributes</b>!. Note that the {@link #attr} attribute should never be used directly incase the REXP implements a lazy access (e.g. via a reference)
 	    @return list of attributes or <code>null</code> if the object has no attributes
 	 */
 	public REXPList _attr() { return attr; }
 	
+	/** returns a string description of the object
+	 @return string describing the object - it can be of an arbitrary form and used only for debugging (do not confuse with {@link #asString()} for accessing string REXPs) */
 	public String toString() {
 		return super.toString()+((attr!=null)?"+":"");
 	}
 	
-	/** returns representation that it useful for debugging (e.g. it includes attributes) */
+	/** returns representation that it useful for debugging (e.g. it includes attributes and may include vector values -- see {@link #maxDebugItems})
+	 @return extended description of the obejct -- it may include vector values
+	 */
 	public String toDebugString() {
 		return (attr!=null)?(("<"+attr.toDebugString()+">")+super.toString()):super.toString();
 	}
