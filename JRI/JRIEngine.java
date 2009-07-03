@@ -289,6 +289,10 @@ public class JRIEngine extends REngine {
 				case SYMSXP:
 					res = new REXPSymbol(rni.rniGetSymbolName(ptr));
 					break;
+					
+				case S4SXP:
+					res = new REXPS4(attrs);
+					break;
 			}
 		} finally {
 			if (obtainedLock)
