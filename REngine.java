@@ -94,7 +94,7 @@ public abstract class REngine {
     public REXP parseAndEval(String cmd) throws REngineException, REXPMismatchException { return parseAndEval(cmd, null, true); };
 	
 	/** performs a close operation on engines that support it. The engine may not be used after <code>close()</code> returned <code>true</code>. This operation is optional and will always return <code>false</code> if not implemented.
-	 @return <code>true</code> if the close opetaion was successful, <code>false</code> otherwise.
+	 @return <code>true</code> if the close opetaion was successful, <code>false</code> otherwise. */
 	public boolean close() { return false; }
 	
 	//--- capabilities ---
