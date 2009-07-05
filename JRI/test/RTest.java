@@ -149,6 +149,28 @@ public class RTest {
 				System.out.println("PASSED");
 			}
 			
+			{
+				System.out.println("* Test enviroment support");
+				REXP x = eng.parseAndEval("new.env(parent=baseenv())");
+				System.out.println("  new.env() = " + x);
+				if (x == null || !x.isEnvironment()) throw new TestException("pull of an environemnt failed");
+				REXPEnvironment e = (REXPEnvironment) x;
+				e.assign("foo", new REXPString("bar"));
+				x = e.get("foo");
+				System.out.println("  get(\"foo\") = " + x);
+				if (x == null || !x.isString() || !x.asString().equals("bar")) throw new TestException("assign/get in an environemnt failed");
+				x = eng.newEnvironment(e, true);
+				System.out.println("  eng.newEnvironment() = " + x);
+				if (x == null || !x.isEnvironment()) throw new TestException("Java-side environment creation failed");
+				x = ((REXPEnvironment)x).parent(true);
+				System.out.println("  parent = " + x);
+				if (x == null || !x.isEnvironment()) throw new TestException("parent environment pull failed");
+				x = e.get("foo");
+				System.out.println("  get(\"foo\",parent) = " + x);
+				if (x == null || !x.isString() || !x.asString().equals("bar")) throw new TestException("get in the parent environemnt failed");
+				System.out.println("PASSED");
+			}
+			
 			/* setEncoding is Rserve's extension - with JRI you have to use UTF-8 locale so this test will fail unless run in UTF-8
 			{ // string encoding test (will work with Rserve 0.5-3 and higher only)
 				System.out.println("* Test string encoding support ...");

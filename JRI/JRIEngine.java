@@ -120,8 +120,13 @@ public class JRIEngine extends REngine {
 	public REXP eval(REXP what, REXP where, boolean resolve) throws REngineException, REXPMismatchException {
 		REXP ref = null;
 		long rho = 0;
-		if (where != null && !where.isReference()) throw(new REXPMismatchException(where, "reference (environment)"));
-		if (where != null) rho = ((Long)((REXPReference)where).getHandle()).longValue();
+		if (where != null && !where.isReference()) {
+			if (!where.isEnvironment() || ((REXPEnvironment)where).getHandle() == null)
+				throw(new REXPMismatchException(where, "environment"));
+			else
+				rho = ((Long)((REXPEnvironment)where).getHandle()).longValue();
+		} else
+			if (where != null) rho = ((Long)((REXPReference)where).getHandle()).longValue();
 		if (what == null) throw(new REngineException(this, "null object to evaluate"));
 		if (!what.isReference()) throw(new REXPMismatchException(where, "reference (expression)"));
 		boolean obtainedLock = rniMutex.safeLock();
@@ -141,8 +146,13 @@ public class JRIEngine extends REngine {
 
 	public void assign(String symbol, REXP value, REXP env) throws REngineException, REXPMismatchException {
 		long rho = 0;
-		if (env != null && !env.isReference()) throw(new REXPMismatchException(env, "reference (environment)"));
-		if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
+		if (env != null && !env.isReference()) {
+			if (!env.isEnvironment() || ((REXPEnvironment)env).getHandle() == null)
+				throw(new REXPMismatchException(env, "environment"));
+			else
+				rho = ((Long)((REXPEnvironment)env).getHandle()).longValue();
+		} else
+			if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
 		if (value == null) value = nullValueRef;
 		if (!value.isReference())
 			value = createReference(value); // if value is not a reference, we have to create one
@@ -158,8 +168,13 @@ public class JRIEngine extends REngine {
 	public REXP get(String symbol, REXP env, boolean resolve) throws REngineException, REXPMismatchException {
 		REXP ref = null;
 		long rho = 0;
-		if (env != null && !env.isReference()) throw(new REXPMismatchException(env, "reference (environment)"));
-		if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
+		if (env != null && !env.isReference()) {
+			if (!env.isEnvironment() || ((REXPEnvironment)env).getHandle() == null)
+				throw(new REXPMismatchException(env, "environment"));
+			else
+				rho = ((Long)((REXPEnvironment)env).getHandle()).longValue();
+		} else
+			if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
 			long pr = rni.rniFindVar(symbol, rho);
@@ -290,6 +305,10 @@ public class JRIEngine extends REngine {
 					res = new REXPSymbol(rni.rniGetSymbolName(ptr));
 					break;
 					
+				case ENVSXP:
+					res = new REXPEnvironment(this, new Long(ptr));
+					break;
+					
 				case S4SXP:
 					res = new REXPS4(attrs);
 					break;
@@ -327,7 +346,14 @@ public class JRIEngine extends REngine {
 				ptr = rni.rniPutDoubleArray(value.asDoubles());
 			else if (value.isString())
 				ptr = rni.rniPutStringArray(value.asStrings());
-			else if (value.isPairList()) { // LISTSXP / LANGSXP
+			else if (value.isEnvironment()) {
+				Long l = (Long) ((REXPEnvironment)value).getHandle();
+				if (l == null) { // no associated reference, create a new environemnt
+					long p = rni.rniParse("new.env(parent=baseenv())", 1);
+					ptr = rni.rniEval(p, 0);
+				} else
+					ptr = l.longValue();
+			} else if (value.isPairList()) { // LISTSXP / LANGSXP
 				boolean lang = value.isLanguage();
 				RList rl = value.asList();
 				ptr = R_NilValue;
@@ -418,8 +444,13 @@ public class JRIEngine extends REngine {
 	public REXP getParentEnvironment(REXP env, boolean resolve) throws REngineException, REXPMismatchException {
 		REXP ref = null;
 		long rho = 0;
-		if (env != null && !env.isReference()) throw(new REXPMismatchException(env, "reference (environment)"));
-		if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
+		if (env != null && !env.isReference()) {
+			if (!env.isEnvironment() || ((REXPEnvironment)env).getHandle() == null)
+				throw(new REXPMismatchException(env, "environment"));
+			else
+				rho = ((Long)((REXPEnvironment)env).getHandle()).longValue();
+		} else
+			if (env != null) rho = ((Long)((REXPReference)env).getHandle()).longValue();
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
 			long pr = rni.rniParentEnv(rho);
@@ -434,8 +465,29 @@ public class JRIEngine extends REngine {
 		return ref;
 	}
 
-	public REXP newEnvironment(REXP parent, boolean resolve) throws REngineException {
-		throw(new REngineException(this, "unsupported"));
+	public REXP newEnvironment(REXP parent, boolean resolve) throws REXPMismatchException, REngineException {
+		REXP ref = null;
+		boolean obtainedLock = rniMutex.safeLock();
+		try {
+			long rho = 0;
+			if (parent != null && !parent.isReference()) {
+				if (!parent.isEnvironment() || ((REXPEnvironment)parent).getHandle() == null)
+					throw(new REXPMismatchException(parent, "environment"));
+				else
+					rho = ((Long)((REXPEnvironment)parent).getHandle()).longValue();
+			} else
+				if (parent != null) rho = ((Long)((REXPReference)parent).getHandle()).longValue();
+			if (rho == 0)
+				rho = ((Long)((REXPReference)globalEnv).getHandle()).longValue();
+			long p = rni.rniEval(rni.rniLCons(rni.rniInstallSymbol("new.env"), rni.rniCons(rho, R_NilValue, rni.rniInstallSymbol("parent"), false)), 0);
+			ref = new REXPReference(this, new Long(p));
+			if (resolve)
+				ref = resolveReference(ref);
+		} finally {
+			if (obtainedLock)
+				rniMutex.unlock();
+		}
+		return ref;
 	}
 
 	public boolean close() {
