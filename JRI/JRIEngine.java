@@ -100,6 +100,20 @@ public class JRIEngine extends REngine {
 		R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
 	}
 	
+	/** WARNING: legacy fallback for hooking from R into an existing Rengine - do NOT use for creating a new Rengine - it will go away eventually */
+	public JRIEngine(Rengine eng) throws REngineException {
+		rniMutex = new Mutex();
+		rni = eng;
+		if (rni.rniGetVersion() < 0x109)
+			throw(new REngineException(this, "R JRI engine is too old - RNI API 1.9 (JRI 0.5) or newer is required"));
+		globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+		nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+		emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+		baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+		nullValue = new REXPNull();
+		R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
+	}		
+	
 	public REXP parse(String text, boolean resolve) throws REngineException {
 		REXP ref = null;
 		boolean obtainedLock = rniMutex.safeLock();
