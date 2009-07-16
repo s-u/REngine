@@ -118,7 +118,7 @@ public class RList extends Vector implements List {
 		if (names==null)
 			names = new Vector();
 		if (names.size() < size()) names.setSize(size());
-		if (i < size()) names.add(i, value);
+		if (i < size()) names.set(i, value);
 	}
 
     /** returns all keys of the list
