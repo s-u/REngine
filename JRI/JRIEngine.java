@@ -271,7 +271,8 @@ public class JRIEngine extends REngine {
 				{
 					int ba[] = rni.rniGetBoolArrayI(ptr);
 					byte b[] = new byte[ba.length];
-					for (int i = 0; i < ba.length; i++) b[i] = (ba[i] == 0 || ba[i] == 1) ? (byte) ba[i] : 2;
+					for (int i = 0; i < ba.length; i++)
+						b[i] = (ba[i] == 0 || ba[i] == 1) ? (byte) ba[i] : REXPLogical.NA;
 					res = new REXPLogical(b, attrs);
 				}
 					break;
@@ -350,8 +351,12 @@ public class JRIEngine extends REngine {
 			long ptr = 0;
 			if (value.isNull()) // NULL cannot have attributes, hence get out right away
 				return R_NilValue;
-			else if (value.isLogical())
-				ptr = rni.rniPutBoolArrayI(value.asIntegers());
+			else if (value.isLogical()) {
+				int v[] = value.asIntegers();
+				for (int i = 0; i < v.length; i++)
+					v[i] = (v[i] < 0) ? 2 : ((v[i] == 0) ? 0 : 1); // convert to logical NAs as used by R
+				ptr = rni.rniPutBoolArrayI(v);
+			}
 			else if (value.isInteger())
 				ptr = rni.rniPutIntArray(value.asIntegers());
 			else if (value.isRaw())
