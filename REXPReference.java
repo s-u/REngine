@@ -76,6 +76,8 @@ public class REXPReference extends REXP {
 	
 	public Object getHandle() { return handle; }
 	
+	public REngine getEngine() { return eng; }
+
 	public String toString() {
 		return super.toString()+"{eng="+eng+",h="+handle+"}";
 	}

@@ -142,7 +142,12 @@ public class JRIEngine extends REngine {
 		} else
 			if (where != null) rho = ((Long)((REXPReference)where).getHandle()).longValue();
 		if (what == null) throw(new REngineException(this, "null object to evaluate"));
-		if (!what.isReference()) throw(new REXPMismatchException(where, "reference (expression)"));
+		if (!what.isReference()) {
+			if (what.isExpression() || what.isLanguage())
+				what = createReference(what);
+			else
+				throw(new REXPMismatchException(where, "reference, expression or language"));
+		}
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
 			long pr = rni.rniEval(((Long)((REXPReference)what).getHandle()).longValue(), rho);
@@ -345,6 +350,12 @@ public class JRIEngine extends REngine {
 	}
 	
 	long createReferencePointer(REXP value) throws REngineException, REXPMismatchException {
+		if (value.isReference()) { // if it's reference, return the handle if it's from this engine
+			REXPReference vref = (REXPReference) value;
+			if (vref.getEngine() != this)
+				throw new REXPMismatchException(value, "reference (cross-engine reference is invalid)");
+			return ((Long)vref.getHandle()).longValue();
+		}
 		boolean obtainedLock = rniMutex.safeLock();
 		int upp = 0;
 		try {
@@ -388,7 +399,7 @@ public class JRIEngine extends REngine {
 						if (n != null) sn = rni.rniInstallSymbol(n);
 						long vptr = createReferencePointer(v);
 						if (vptr == 0) vptr = R_NilValue;
-						long ent = rni.rniCons(vptr, ptr, sn, lang);
+						long ent = rni.rniCons(vptr, ptr, sn, (i == 0) && lang); /* only the head should be LANGSXP I think - verify ... */
 						rni.rniPreserve(ent); // preserve current head
 						rni.rniRelease(ptr); // release previous head (since it's part of the new one already)
 						ptr = ent;
