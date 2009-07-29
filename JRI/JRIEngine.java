@@ -546,7 +546,7 @@ public class JRIEngine extends REngine {
 	}
 	
 	public boolean supportsReferences() { return true; }
-	public boolean supportsEnvironemnts() { return true; }
+	public boolean supportsEnvironments() { return true; }
 	// public boolean supportsREPL() { return true; }
 	public boolean supportsLocking() { return true; }
 }

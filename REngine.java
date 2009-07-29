@@ -103,7 +103,7 @@ public abstract class REngine {
 	public boolean supportsReferences() { return false; }
 	/** check whether this engine supports handing of environments (if not, {@link #eval} and {@link #assign} only support the global environment denoted by <code>null</code>).
 	 @return <code>true</code> if this engine supports environments, <code>false/code> otherwise */
-	public boolean supportsEnvironemnts() { return false; }
+	public boolean supportsEnvironments() { return false; }
 	/** check whether this engine supports REPL (Read-Evaluate-Print-Loop) and corresponding callbacks.
 	 @return <code>true</code> if this engine supports REPL, <code>false/code> otherwise */
 	public boolean supportsREPL() { return false; }

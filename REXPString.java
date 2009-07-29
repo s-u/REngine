@@ -1,18 +1,27 @@
 package org.rosuda.REngine;
 
+/** REXPString represents a character vector in R. */
 public class REXPString extends REXPVector {
+	/** payload */
 	private String[] payload;
 	
+	/** create a new character vector of the length one
+	 *  @param load first (and only) element of the vector */
 	public REXPString(String load) {
 		super();
 		payload=new String[] { load };
 	}
 
+	/** create a new character vector
+	 *  @param load string elements of the vector */
 	public REXPString(String[] load) {
 		super();
 		payload=(load==null)?new String[0]:load;
 	}
 
+	/** create a new character vector with attributes
+	 *  @param load string elements of the vector
+	 *  @param attr attributes */
 	public REXPString(String[] load, REXPList attr) {
 		super(attr);
 		payload=(load==null)?new String[0]:load;

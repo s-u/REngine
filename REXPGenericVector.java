@@ -1,8 +1,12 @@
 package org.rosuda.REngine;
 
+/** REXPGenericVector represents a generic vector in R. Its elements can be typically of any {@link REXP} type. */
 public class REXPGenericVector extends REXPVector {
+	/** payload */
 	private RList payload;
 	
+	/** creates a new generic vector from a list. If the list is named, the <code>"names"</code> attribute is created automatically from it.
+	 *  @param list list to create the vector from */
 	public REXPGenericVector(RList list) {
 		super();
 		payload=(list==null)?new RList():list;
@@ -13,6 +17,9 @@ public class REXPGenericVector extends REXPVector {
 						  new String[] { "names" }));
 	}
 	
+	/** creates a new generic vector from a list. Note that the names in the list are ignored as they are expected to be defined by the attributes parameter.
+	 *  @param list list to create the vector from (names are ignored - use {@link #REXPGenericVector(RList)} or the <code>"names"</code> attribute for named lists
+	 *  @param attr attributes */
 	public REXPGenericVector(RList list, REXPList attr) {
 		super(attr);
 		payload=(list==null)?new RList():list;
