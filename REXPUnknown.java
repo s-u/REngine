@@ -6,11 +6,11 @@ public class REXPUnknown extends REXP {
 	int type;
 
 	/** creates a new unknown object of the given type
-	 *  @param internal R type code of this object */
+	 *  @param type internal R type code of this object */
 	public REXPUnknown(int type) { super(); this.type=type; }
 
 	/** creates a new unknown object of the given type
-	 *  @param internal R type code of this object
+	 *  @param type internal R type code of this object
 	 *  @param attr attributes */
 	public REXPUnknown(int type, REXPList attr) { super(attr); this.type=type; }
 	

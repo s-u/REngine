@@ -1,7 +1,7 @@
 package org.rosuda.REngine;
 // environments are like REXPReferences except that they cannot be resolved
 
-/** REXPEnvironment represents an environment in R. Very much like {@link REXPReference} this is a proxy object to the actual object on the R side. It provides methods for accessing the content of the environment. The actual implementation may vary by the back-end used and not all engines support environments. Check {@link REngine.supportsEnvironments()} for the given engine. Environments are specific for a given engine, they cannot be passed across engines.
+/** REXPEnvironment represents an environment in R. Very much like {@link org.rosuda.REngine.REXPReference} this is a proxy object to the actual object on the R side. It provides methods for accessing the content of the environment. The actual implementation may vary by the back-end used and not all engines support environments. Check {@link org.rosuda.REngine.REngine.supportsEnvironments()} for the given engine. Environments are specific for a given engine, they cannot be passed across engines.
  */
 public class REXPEnvironment extends REXP {
 	/** engine associated with this environment */
