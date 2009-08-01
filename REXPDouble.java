@@ -7,9 +7,12 @@ public class REXPDouble extends REXPVector {
 	/** NA real value as defined in R. Note: it can NOT be used in comparisons, you must use {@link #isNA(double)} instead. */
 	public static final double NA = Double.longBitsToDouble(0x7ff00000000007a2L);
 	
+	/** Java screws up the bits in NA real values, so we cannot compare to the real bits used by R (0x7ff00000000007a2L) but use this value which is obtained by passing the bits through Java's double type */
+	static final long NA_bits = Double.doubleToRawLongBits(Double.longBitsToDouble(0x7ff00000000007a2L));
+	
 	/** checks whether a given double value is a NA representation in R. Note that NA is NaN but not all NaNs are NA. */
 	public static boolean isNA(double value) {
-		return Double.doubleToRawLongBits(value) == 0x7ff00000000007a2L;
+		return Double.doubleToRawLongBits(value) == NA_bits;
 	}
 
 	/** create real vector of the length 1 with the given value as its first (and only) element */

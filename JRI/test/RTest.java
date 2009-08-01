@@ -29,14 +29,23 @@ public class RTest {
 			
 			{
 				System.out.println("* Test NA/NaN support in double vectors...");
-				double R_NA = Double.longBitsToDouble(0x7ff00000000007a2L);
-				// int R_NA_int = -2147483648; // just for completeness
-				double x[] = { 1.0, 0.5, R_NA, Double.NaN, 3.5 };
+				double x[] = { 1.0, 0.5, REXPDouble.NA, Double.NaN, 3.5 };
 				eng.assign("x",x);
 				String nas = eng.parseAndEval("paste(capture.output(print(x)),collapse='\\n')").asString();
 				System.out.println(nas);
 				if (!nas.equals("[1] 1.0 0.5  NA NaN 3.5"))
 					throw new TestException("NA/NaN assign+retrieve test failed");
+				// regression: the inverse failed becasue Java screwed up the bits in the NA value
+				REXP v = eng.parseAndEval("c(1.5, NA, NaN)");
+				if (v == null || v.length() != 3)
+					throw new TestException("NA/NaN double retrieve test failed");
+				System.out.println("  v = "+v.toDebugString());
+				boolean b[] = v.isNA();
+				if (b == null || b.length != 3 || b[0] != false || b[1] != true || b[2] != false)
+					throw new TestException("isNA() test on doubles failed");
+				double d[] = v.asDoubles();
+				if (Double.isNaN(d[0]) || !Double.isNaN(d[1]) || !Double.isNaN(d[2]))
+					throw new TestException("Double.isNaN test on doubles failed");
 				System.out.println("PASSED");
 			}
 			

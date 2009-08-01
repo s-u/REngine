@@ -87,6 +87,11 @@ public class REXP {
 	 * @throws REXPMismatchException if this is not a vector object */
 	public int length() throws REXPMismatchException { throw new REXPMismatchException(this, "vector"); }
 
+	/** returns a boolean vector of the same length as this vector with <code>true</code> for NA values and <code>false</code> for any other values
+	 *  @return a boolean vector of the same length as this vector with <code>true</code> for NA values and <code>false</code> for any other values
+	 * @throws REXPMismatchException if this is not a vector object */
+	public boolean[] isNA() throws REXPMismatchException { throw new REXPMismatchException(this, "vector"); }
+	
 	// convenience accessor methods
 	/** convenience method corresponding to <code>asIntegers()[0]</code>
 	 @return first entry returned by {@link #asInteger} */
