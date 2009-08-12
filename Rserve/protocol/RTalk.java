@@ -51,6 +51,11 @@ public class RTalk {
     public static final int CMD_detachedVoidEval=0x031;
     public static final int CMD_attachSession=0x032;
 
+    // control commands since 0.6-0
+    public static final int CMD_ctrlEval=0x42;
+    public static final int CMD_ctrlSource=0x45;
+    public static final int CMD_ctrlShutdown=0x44; 
+    
     // errors as returned by Rserve
     public static final int ERR_auth_failed=0x41;
     public static final int ERR_conn_broken=0x42;
@@ -65,6 +70,7 @@ public class RTalk {
     public static final int ERR_data_overflow=0x4b;
     public static final int ERR_object_too_big=0x4c;
     public static final int ERR_out_of_mem=0x4d;
+    public static final int ERR_ctrl_closed=0x4e;
     public static final int ERR_session_busy=0x50;
     public static final int ERR_detach_failed=0x51;
    

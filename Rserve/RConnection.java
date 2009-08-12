@@ -404,7 +404,39 @@ public void assign(String sym, REXP rexp) throws RserveException {
     /** get last error string
 	@return last error string */
     public String getLastError() { return lastError; }
-
+	
+    /** evaluates the given command in the master server process asynchronously (control command). Note that control commands are always asynchronous, i.e., the expression is enqueued for evaluation in the master process and the method returns before the expression is evaluated (in non-parallel builds the client has to close the connection before the expression can be evaluated). There is no way to check for errors and control commands should be sent with utmost care as they can abort the server process. The evaluation has no immediate effect on the client session.
+     *  @param cmd command/expression string 
+     *  @since Rserve 0.6-0 */
+    public void serverEval(String cmd) throws RserveException {
+	if (!connected || rt == null)
+	    throw new RserveException(this, "Not connected");
+	RPacket rp = rt.request(RTalk.CMD_ctrlEval, cmd+"\n");
+	if (rp != null && rp.isOk()) return;
+	throw new RserveException(this,"serverEval failed",rp);
+    }
+    
+    /** sources the given file (the path must be local to the server!) in the master server process asynchronously (control command). See {@link #serverEval()} for details on control commands.
+     *  @param serverFile path to a file on the server (it is recommended to always use full paths, because the server process has a different working directory than the client child process!).
+     *  @since Rserve 0.6-0 */
+    public void serverSource(String serverFile) throws RserveException {
+	if (!connected || rt == null)
+	    throw new RserveException(this, "Not connected");
+	RPacket rp = rt.request(RTalk.CMD_ctrlSource, serverFile);
+	if (rp != null && rp.isOk()) return;
+	throw new RserveException(this,"serverSource failed",rp);
+    }
+    
+    /** attempt to shut down the server process cleanly. Note that there is a fundamental difference between the {@link shutdown()} method and this method: <code>serverShutdown()</code> is a proper control command and thus fully authentication controllable, whereas {@link shutdown()} is a client-side command sent to the client child process and thus relying on the ability of the client to signal the server process which may be disabled. Therefore <code>serverShutdown()</code> is preferred and more reliable for Rserve 0.6-0 and higher.
+     *  @since Rserve 0.6-0 */
+    public void serverShutdown() throws RserveException {
+	if (!connected || rt == null)
+	    throw new RserveException(this, "Not connected");
+	RPacket rp = rt.request(RTalk.CMD_ctrlShutdown);
+	if (rp != null && rp.isOk()) return;
+	throw new RserveException(this,"serverShutdown failed",rp);
+    }
+    
 //========= REngine interface API
 
 public REXP parse(String text, boolean resolve) throws REngineException {

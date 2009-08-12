@@ -42,6 +42,7 @@ public class RserveException extends REngineException {
             case RTalk.ERR_out_of_mem: return "FATAL: Rserve ran out of memory, closing connection";
 			case RTalk.ERR_session_busy: return "session is busy";
 			case RTalk.ERR_detach_failed: return "session detach failed";
+		case RTalk.ERR_ctrl_closed: return "control pipe to master process is closed/broken";
         }
         return "error code: "+code;
     }

@@ -10,7 +10,7 @@ public class test {
 	try {
 	    RConnection c = new RConnection();
 
-	    System.out.println(">>"+c.eval("R.version$version.string").asString()+"<<");
+	    System.out.println(">>" + c.eval("R.version$version.string").asString() + "<<");
 
 		{
 			System.out.println("* Test string and list retrieval");
@@ -24,8 +24,7 @@ public class test {
 		
 	    {
 		System.out.println("* Test NA/NaN support in double vectors...");
-		double R_NA = Double.longBitsToDouble(0x7ff00000000007a2L);
-		// int R_NA_int = -2147483648; // just for completeness
+		double R_NA = REXPDouble.NA;
 		double x[] = { 1.0, 0.5, R_NA, Double.NaN, 3.5 };
 		c.assign("x",x);
 		String nas = c.eval("paste(capture.output(print(x)),collapse='\\n')").asString();
@@ -184,6 +183,23 @@ public class test {
 			System.out.println("PASSED");
 		}
 		
+		{ // test control commands (works only when enabled and in Rserve 0.6-0 and higher only) - must be the last test since it closes the connection and shuts down the server
+			System.out.println("* Test control commands (this will fail if control commands are disabled) ...");
+			System.out.println("  server eval");
+			String key = "rn" + Math.random(); // generate a random number to prevent contamination from previous tests
+			c.serverEval("xXx<-'" + key + "'");
+			c.close();
+			c = new RConnection();
+			REXP x = c.eval("xXx");
+			if (x == null || !x.isString() || x.length() != 1 || !x.asString().equals(key))
+				throw new TestException("control eval test failed - assignment was not persistent");
+			c.serverEval("rm(xXx)"); // remove the test variable to not pollute the global workspace
+			System.out.println("  server shutdown");
+			c.serverShutdown();
+			c.close();
+			System.out.println("PASSED");
+		}
+	    
 		} catch (RserveException rse) {
 	    System.out.println(rse);
 	} catch (REXPMismatchException mme) {
