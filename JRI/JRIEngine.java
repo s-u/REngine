@@ -41,6 +41,9 @@ public class JRIEngine extends REngine {
 	static final int RAWSXP = 24; /* raw bytes */
 	static final int S4SXP = 25; /* S4 object */
 	
+	/** minimal JRI API version that is required by this class in order to work properly (currently API 1.10, corresponding to JRI 0.5-1 or higher) */
+	static public final long requiredAPIversion = 0x010a;
+	
 	/** currently running <code>JRIEngine</code> - there can be only one and we store it here. Essentially if it is <code>null</code> then R was not initialized. */
 	static JRIEngine jriEngine = null;
 	
@@ -85,13 +88,15 @@ public class JRIEngine extends REngine {
 	}
 	
 	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
+		if (Rengine.getVersion() < requiredAPIversion)
+			throw new REngineException(null, "JRI API version is too old, update rJava/JRI to match the REngine API");
 		// the default modus operandi is without event loop and with --no-save option
 		rniMutex = new Mutex();
 		rni = new Rengine(args, callbacks==null?false:true, callbacks);
 		if (!rni.waitForR())
 			throw(new REngineException(this, "Unable to initialize R"));
-		if (rni.rniGetVersion() < 0x109)
-			throw(new REngineException(this, "R JRI engine is too old - RNI API 1.9 (JRI 0.5) or newer is required"));
+		if (rni.rniGetVersion() < requiredAPIversion)
+			throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
 		globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
 		nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
 		emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
@@ -175,13 +180,15 @@ public class JRIEngine extends REngine {
 		if (value == null) value = nullValueRef;
 		if (!value.isReference())
 			value = createReference(value); // if value is not a reference, we have to create one
-		boolean obtainedLock = rniMutex.safeLock();
+		boolean obtainedLock = rniMutex.safeLock(), succeeded = false;
 		try {
-			rni.rniAssign(symbol, ((Long)((REXPReference)value).getHandle()).longValue(), rho);
+			succeeded = rni.rniAssign(symbol, ((Long)((REXPReference)value).getHandle()).longValue(), rho);
 		} finally {
 			if (obtainedLock)
 				rniMutex.unlock();
 		}
+		if (!succeeded)
+			throw new REngineException(this, "assign failed (probably locked binding");
 	}
 	
 	public REXP get(String symbol, REXP env, boolean resolve) throws REngineException, REXPMismatchException {
