@@ -180,6 +180,33 @@ public class RTest {
 				System.out.println("PASSED");
 			}
 			
+			{
+				System.out.println("* Test generation of exceptions");
+				String cmd = "rnorm(10))" ; // syntax error
+				System.out.println("  eng.parse(\"rnorm(10))\", false )     ->  REngineException( \"Parse Error\" ) " ) ;
+				boolean ok = false; 
+				try{
+					eng.parse( cmd, false ) ; 
+				} catch( REngineException e){
+					ok = true ; 
+				}
+				if( !ok ){
+					throw new TestException( "parse did not generate an exception on syntax error" ) ; 
+				}
+				System.out.println("  eng.parseAndEval(\"rnorm(10))\" )     ->  REngineException( \"Parse Error\" ) " ) ;
+				ok = false; 
+				try{
+					eng.parseAndEval( cmd ) ; 
+				} catch( REngineException e){
+					ok = true ; 
+				}
+				if( !ok ){
+					throw new TestException( "parseAndEval did not generate an exception on syntax error" ) ; 
+				}
+				System.out.println("PASSED");
+				
+			}
+			
 			/* setEncoding is Rserve's extension - with JRI you have to use UTF-8 locale so this test will fail unless run in UTF-8
 			{ // string encoding test (will work with Rserve 0.5-3 and higher only)
 				System.out.println("* Test string encoding support ...");

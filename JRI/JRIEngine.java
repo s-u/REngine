@@ -124,7 +124,7 @@ public class JRIEngine extends REngine {
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
 			long pr = rni.rniParse(text, -1);
-			if (pr == 0) throw(new REngineException(this, "Parse error"));
+			if (pr == 0 || pr == R_NilValue) throw(new REngineException(this, "Parse error"));
 			rni.rniPreserve(pr);
 			ref = new REXPReference(this, new Long(pr));
 			if (resolve)
