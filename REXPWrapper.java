@@ -60,29 +60,30 @@ public class REXPWrapper {
 	/**
 	 * Wraps an Object into a REXP
 	 *
-	 * Conversion :
-	 * &lt;ul&gt;
-	 * &lt;li&gt;Byte (byte) : REXPRaw &lt;/li&gt;
-	 * &lt;li&gt;Short (short) : REXPInteger &lt;/li&gt;
-	 * &lt;li&gt;Integer (int) : REXPInteger &lt;/li&gt;
-	 * &lt;li&gt;Long (long) : REXPInteger&lt;/li&gt;
-	 * &lt;li&gt;Float (float) : REXPDouble&lt;/li&gt;
-	 * &lt;li&gt;Double (double) : REXPDouble &lt;/li&gt;
-	 * &lt;li&gt;Boolean (boolean) : REXPLogical&lt;/li&gt;
-	 * &lt;li&gt;--&lt;/li&gt;
-	 * &lt;li&gt;String : REXPString &lt;/li&gt;
-	 * &lt;li&gt;String[] : REXPString &lt;/li&gt;
-	 * &lt;li&gt;--&lt;/li&gt;
-	 * &lt;li&gt;byte[] or Byte[] : REXPRaw&lt;/li&gt;
-	 * &lt;li&gt;short[] or Short[] : REXPInteger&lt;/li&gt;
-	 * &lt;li&gt;int[] or Integer[] : REXPInteger&lt;/li&gt;
-	 * &lt;li&gt;long[] or Long[] : REXPInteger&lt;/li&gt;
-	 * &lt;li&gt;float[] or Float[] : REXPDouble&lt;/li&gt;
-	 * &lt;li&gt;double[] or Double[] : REXPDouble &lt;/li&gt;
-	 * &lt;li&gt;boolean[] or Boolean[]: REXPLogical&lt;/li&gt;
-	 * &lt;li&gt;--&lt;/li&gt;
-	 * &lt;li&gt;null for anything else&lt;/li&gt;
-	 * &lt;/ul&gt;
+	 * <p>Conversion :</p>
+	 *
+	 * <ul>
+	 * <li>Byte (byte) : REXPRaw </li>
+	 * <li>Short (short) : REXPInteger </li>
+	 * <li>Integer (int) : REXPInteger </li>
+	 * <li>Long (long) : REXPInteger</li>
+	 * <li>Float (float) : REXPDouble</li>
+	 * <li>Double (double) : REXPDouble </li>
+	 * <li>Boolean (boolean) : REXPLogical</li>
+	 * <li>--</li>
+	 * <li>String : REXPString </li>
+	 * <li>String[] : REXPString </li>
+	 * <li>--</li>
+	 * <li>byte[] or Byte[] : REXPRaw</li>
+	 * <li>short[] or Short[] : REXPInteger</li>
+	 * <li>int[] or Integer[] : REXPInteger</li>
+	 * <li>long[] or Long[] : REXPInteger</li>
+	 * <li>float[] or Float[] : REXPDouble</li>
+	 * <li>double[] or Double[] : REXPDouble </li>
+	 * <li>boolean[] or Boolean[]: REXPLogical</li>
+	 * <li>--</li>
+	 * <li>null for anything else</li>
+	 * </ul>
 	 * 
 	 * @param o object to wrap
 	 * @return REXP object that represents o or null if the conversion is not possible
