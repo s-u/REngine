@@ -556,4 +556,38 @@ public class JRIEngine extends REngine {
 	public boolean supportsEnvironments() { return true; }
 	// public boolean supportsREPL() { return true; }
 	public boolean supportsLocking() { return true; }
+	
+	/**
+	 * creates a <code>jobjRef</code> reference in R via rJava.<br><b>Important:</b> rJava must be loaded and intialized in R (e.g. via <code>eval("{library(rJava);.jinit()}",false)</code>, otherwise this will fail. Requires rJava 0.4-13 or higher!
+	 *
+	 * @param o object to push to R
+	 * 
+	 * @return unresolved REXPReference of the newly created <code>jobjRef</code> object
+	 *         or <code>null</code> upon failure
+	 */
+	public REXPReference createRJavaRef(Object o) throws REngineException {
+		/* precaution */
+		if( o == null ){
+			return null ;
+		}
+		
+		/* call Rengine api and make REXPReference from the result */
+		REXPReference ref = null ; 
+		boolean obtainedLock = rniMutex.safeLock();
+		try {
+			org.rosuda.JRI.REXP rx = rni.createRJavaRef( o );
+			if( rx == null){
+				throw new REngineException( this, "Could not push java Object to R" ) ; 
+			} else{ 
+				long p = rx.xp;
+				rni.rniPreserve(p) ;
+				ref = new REXPReference( this, new Long(p) ) ;
+			}
+		} finally {
+			if (obtainedLock)
+				rniMutex.unlock();
+		}
+		return ref ; 
+	}
+	
 }

@@ -1,4 +1,5 @@
 import org.rosuda.REngine.*;
+import org.rosuda.REngine.JRI.JRIEngine; 
 
 class TestException extends Exception {
 	public TestException(String msg) { super(msg); }
@@ -206,6 +207,36 @@ public class RTest {
 				System.out.println("PASSED");
 				
 			}
+			
+			{
+				System.out.println("* Test creation of references to java objects");
+				REXPReference ref = ((JRIEngine)eng).createRJavaRef( null );
+				if( ref != null ){
+					throw new TestException( "null object should create null REXPReference" ) ; 
+				}
+				System.out.println("  eng.createRJavaRef(null)     ->  null : ok" ) ;
+				
+				System.out.println( "  pushing a java.awt.Point to R " ) ;
+				java.awt.Point p = new java.awt.Point( 10, 10) ;
+				ref = ((JRIEngine)eng).createRJavaRef( p ); 
+				eng.assign( "p", ref ) ;
+				String cmd = "exists('p') && inherits( p, 'jobjRef') && .jclass(p) == 'java.awt.Point' " ; 
+				System.out.println( "  test if the object was pushed correctly " ) ;
+				boolean ok = ((REXPLogical)eng.parseAndEval( cmd )).isTRUE()[0] ;
+				if( !ok ){
+					throw new TestException( "could not push java object to R" ) ;
+				}
+				System.out.println( "  R> " + cmd + "  :  ok " ) ;
+				
+				eng.parseAndEval( ".jcall( p, 'V', 'move', 20L, 20L )" ) ; 
+				System.out.println("  manipulate the object " ) ;
+				if( p.x != 20 || p.y != 20 ){
+					throw new TestException( "not modified the java object with R" ) ; 
+				}
+				System.out.println("  R> .jcall( p, 'V', 'move', 20L, 20L )   -> p.x == 20 ,p.y == 20 : ok " ) ;
+				System.out.println("PASSED");
+			}
+			
 			
 			/* setEncoding is Rserve's extension - with JRI you have to use UTF-8 locale so this test will fail unless run in UTF-8
 			{ // string encoding test (will work with Rserve 0.5-3 and higher only)
