@@ -143,7 +143,7 @@ public abstract class REngine {
 	 @return 0 if the lock could not be obtained (R engine is busy) and some other value otherwise -- the returned value must be used in a matching call to {@link #unlock(int)}. */
 	public synchronized int tryLock() { return 0; }
 
-	/** obains a lock for this R engine, waiting until it becomes available.
+	/** obtains a lock for this R engine, waiting until it becomes available.
 	 <br>Note: check for {@link #supportsLocking()} before relying on this capability. If not implemented, always returns 0.
 	 @return value that must be passed to {@link #unlock} in order to release the lock */
 	public synchronized int lock() { return 0; }
@@ -155,5 +155,9 @@ public abstract class REngine {
 
 	public String toString() {
 		return super.toString()+((lastEngine==this)?"{last}":"");
+	}
+	
+	public REXP wrap(Object o){
+		return REXPWrapper.wrap(o); 
 	}
 }

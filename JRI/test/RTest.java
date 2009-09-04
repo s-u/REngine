@@ -182,6 +182,179 @@ public class RTest {
 			}
 			
 			{
+				System.out.println("* Test wrapping of java objects into REXP (REXPWrapper)");
+				
+				REXP rx ; 
+				
+				System.out.print("  String" ) ;
+				rx = eng.wrap( "hello" ) ;
+				if( ! ( rx instanceof REXPString ) ){ throw new TestException( "wrap( String ) -> REXPString" ); }
+				System.out.println("  -> REXPString : ok" ) ;
+				
+				System.out.print("  String[]" ) ;
+				rx = eng.wrap( new String[]{ "hello", "world" } ) ;
+				if( ! ( rx instanceof REXPString ) ){ throw new TestException( "wrap( String[] ) -> REXPString" ); }
+				System.out.println("  -> REXPString : ok" ) ;
+				
+				/* byte */
+				
+				System.out.print("  byte" ) ;
+				rx = eng.wrap( Byte.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( byte ) -> REXPRaw" ); }
+				System.out.println("  -> REXPRaw : ok" ) ;
+				
+				System.out.print("  byte[]" ) ;
+				rx = eng.wrap( new byte[]{ Byte.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( byte[] ) -> REXPRaw" ); }
+				System.out.println("  -> REXPRaw : ok" ) ;
+				
+				System.out.print("  Byte" ) ;
+				rx = eng.wrap( new Byte( Byte.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( Byte ) -> REXPRaw" ); }
+				System.out.println("  -> REXPRaw : ok" ) ;
+				
+				System.out.print("  Byte[]" ) ;
+				rx = eng.wrap( new Byte[]{ new Byte( Byte.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( Byte[] ) -> REXPRaw" ); }
+				System.out.println("  -> REXPRaw : ok" ) ;
+				
+				/* short */
+				
+				System.out.print("  short" ) ;
+				rx = eng.wrap( Short.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( short ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  short[]" ) ;
+				rx = eng.wrap( new short[]{ Short.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( short[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Short" ) ;
+				rx = eng.wrap( new Short( Short.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Short ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Short[]" ) ;
+				rx = eng.wrap( new Short[]{ new Short( Short.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Short[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				/* int */
+				
+				System.out.print("  int" ) ;
+				rx = eng.wrap( Integer.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( int ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  int[]" ) ;
+				rx = eng.wrap( new int[]{ Integer.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( int[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Integer" ) ;
+				rx = eng.wrap( new Integer( Integer.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Integer ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Integer[]" ) ;
+				rx = eng.wrap( new Integer[]{ new Integer( Integer.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Integer[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				/* long */
+				
+				System.out.print("  long" ) ;
+				rx = eng.wrap( Long.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( long ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  long[]" ) ;
+				rx = eng.wrap( new long[]{ Long.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( long[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Long" ) ;
+				rx = eng.wrap( new Long( Long.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Long ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				System.out.print("  Long[]" ) ;
+				rx = eng.wrap( new Long[]{ new Long( Long.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Long[] ) -> REXPInteger" ); }
+				System.out.println("  -> REXPInteger : ok" ) ;
+				
+				/* float */
+				
+				System.out.print("  float" ) ;
+				rx = eng.wrap( Float.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( float ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  float[]" ) ;
+				rx = eng.wrap( new float[]{ Float.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( float[] ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  Float" ) ;
+				rx = eng.wrap( new Float( Float.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Float ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  Float[]" ) ;
+				rx = eng.wrap( new Float[]{ new Float( Float.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Float[] ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				/* double */
+				
+				System.out.print("  double" ) ;
+				rx = eng.wrap( Double.MIN_VALUE ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( double ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  double[]" ) ;
+				rx = eng.wrap( new double[]{ Double.MIN_VALUE} ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( double[] ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  Double" ) ;
+				rx = eng.wrap( new Double( Double.MIN_VALUE ) ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Double ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				System.out.print("  Double[]" ) ;
+				rx = eng.wrap( new Double[]{ new Double( Double.MIN_VALUE ) } ) ;
+				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Double[] ) -> REXPDouble" ); }
+				System.out.println("  -> REXPDouble : ok" ) ;
+				
+				/* boolean */
+				
+				System.out.print("  boolean" ) ;
+				rx = eng.wrap( Boolean.TRUE ) ;
+				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( boolean ) -> REXPLogical" ); }
+				System.out.println("  -> REXPLogical : ok" ) ;
+				
+				System.out.print("  boolean[]" ) ;
+				rx = eng.wrap( new boolean[]{ Boolean.TRUE} ) ;
+				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( boolean[] ) -> REXPLogical" ); }
+				System.out.println("  -> REXPLogical : ok" ) ;
+				
+				System.out.print("  Boolean" ) ;
+				rx = eng.wrap( new Boolean( Boolean.TRUE ) ) ;
+				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( Boolean ) -> REXPLogical" ); }
+				System.out.println("  -> REXPLogical : ok" ) ;
+				
+				System.out.print("  Boolean[]" ) ;
+				rx = eng.wrap( new Boolean[]{ new Boolean( Boolean.TRUE ) } ) ;
+				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( Boolean[] ) -> REXPLogical" ); }
+				System.out.println("  -> REXPLogical : ok" ) ;
+				
+				System.out.println("PASSED" ) ;
+			}
+			
+			
+			{
 				System.out.println("* Test generation of exceptions");
 				String cmd = "rnorm(10))" ; // syntax error
 				System.out.println("  eng.parse(\"rnorm(10))\", false )     ->  REngineException( \"Parse Error\" ) " ) ;
