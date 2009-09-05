@@ -8,6 +8,18 @@ package org.rosuda.REngine ;
 public class REngineEvalException extends REngineException {
 	
 	/**
+	 * Value returned by the rniEval native method when the input passed to eval
+	 * is invalid
+	 */ 
+	public static final int INVALID_INPUT = -1 ;
+	
+	/**
+	 * Value returned by the rniEval native method when an error occured during 
+	 * eval (stop, ...)
+	 */
+	public static final int ERROR = -2 ;  
+
+	/**
 	 * Constructor. 
 	 */
 	public REngineEvalException( REngine eng, String message ){
