@@ -131,8 +131,22 @@ public class RTest {
 			{
 				// multi-line expressions
 				System.out.println("* Test multi-line expressions");
+				System.out.print("    multi-line single expression");
 				if (eng.parseAndEval("{ a=1:10\nb=11:20\nmean(b-a) }\n").asInteger()!=10)
 					throw new TestException("multi-line test failed.");
+				System.out.println("    : ok");
+				
+				System.out.print("    multitle expressions" ); 
+				if (eng.parseAndEval("a=1:10; b=11:20; mean(b-a)").asInteger()!=10)
+					throw new TestException("multi-expression test failed.");
+				System.out.println("    : ok");
+				
+				System.out.print("    comment (0 expressions)" ); 
+				if (! eng.parseAndEval("# comment").isNull() )
+					throw new TestException("eval comment (zero expression) failed");
+				System.out.println("    : ok");
+				
+				
 				System.out.println("PASSED");
 			}
 			{
