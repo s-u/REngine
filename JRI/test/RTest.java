@@ -379,6 +379,8 @@ public class RTest {
 			
 			{
 				System.out.println("* Test generation of exceptions");
+				
+				/* parse exceptions */
 				String cmd = "rnorm(10))" ; // syntax error
 				System.out.println("  eng.parse(\"rnorm(10))\", false )     ->  REngineException( \"Parse Error\" ) " ) ;
 				boolean ok = false; 
@@ -400,6 +402,23 @@ public class RTest {
 				if( !ok ){
 					throw new TestException( "parseAndEval did not generate an exception on syntax error" ) ; 
 				}
+				
+				/* eval exceptions */
+				cmd = "rnorm(5); stop('error'); rnorm(2)" ;
+				System.out.print("  " + cmd  ) ;
+				ok = false; 
+				try{
+					eng.parseAndEval( cmd ) ; 
+				}	catch( REngineException e){
+					if( e instanceof REngineEvalException ){
+						ok = true ; 
+					}
+				}
+				if( !ok ){
+					throw new TestException( "error in R did not generate REngineEvalException" ) ; 
+				}
+				System.out.println( "   -> REngineEvalException  : ok" ) ;
+					
 				System.out.println("PASSED");
 				
 			}

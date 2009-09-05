@@ -41,6 +41,18 @@ public class JRIEngine extends REngine {
 	static final int RAWSXP = 24; /* raw bytes */
 	static final int S4SXP = 25; /* S4 object */
 	
+	/**
+	 * Value returned by the rniEval native method when the input passed to eval
+	 * is invalid
+	 */ 
+	public static final int EVAL_INVALID_INPUT = -1 ;
+	
+	/**
+	 * Value returned by the rniEval native method when an error occured during 
+	 * eval (stop, ...)
+	 */
+	public static final int EVAL_ERROR = -2 ;  
+	
 	/** minimal JRI API version that is required by this class in order to work properly (currently API 1.10, corresponding to JRI 0.5-1 or higher) */
 	static public final long requiredAPIversion = 0x010a;
 	
@@ -156,7 +168,9 @@ public class JRIEngine extends REngine {
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
 			long pr = rni.rniEval(((Long)((REXPReference)what).getHandle()).longValue(), rho);
-			if (pr == -1) throw(new REngineException(this, "Eval error (invalid input)"));
+			/* handling problems */
+			if (pr == EVAL_INVALID_INPUT) throw(new REngineException(this, "Eval error (invalid input)"));
+			if (pr == EVAL_ERROR) throw new REngineEvalException( this, "error during evaluation" ) ;
 			rni.rniPreserve(pr);
 			ref = new REXPReference(this, new Long(pr));
 			if (resolve)
@@ -388,6 +402,7 @@ public class JRIEngine extends REngine {
 				if (l == null) { // no associated reference, create a new environemnt
 					long p = rni.rniParse("new.env(parent=baseenv())", 1);
 					ptr = rni.rniEval(p, 0);
+					/* TODO: should we handle EVAL_ERROR and EVAL_INVALID_INPUT here, for completeness */
 				} else
 					ptr = l.longValue();
 			} else if (value.isPairList()) { // LISTSXP / LANGSXP
@@ -517,6 +532,7 @@ public class JRIEngine extends REngine {
 			if (rho == 0)
 				rho = ((Long)((REXPReference)globalEnv).getHandle()).longValue();
 			long p = rni.rniEval(rni.rniLCons(rni.rniInstallSymbol("new.env"), rni.rniCons(rho, R_NilValue, rni.rniInstallSymbol("parent"), false)), 0);
+			/* TODO: should we handle EVAL_INVALID_INPUT and EVAL_ERROR here, for completeness */
 			ref = new REXPReference(this, new Long(p));
 			if (resolve)
 				ref = resolveReference(ref);
