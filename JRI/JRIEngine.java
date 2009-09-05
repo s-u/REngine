@@ -157,8 +157,12 @@ public class JRIEngine extends REngine {
 		try {
 			long pr = rni.rniEval(((Long)((REXPReference)what).getHandle()).longValue(), rho);
 			/* handling problems */
-			if (pr == REngineEvalException.INVALID_INPUT) throw(new REngineException(this, "Eval error (invalid input)"));
-			if (pr == REngineEvalException.ERROR) throw new REngineEvalException( this, "error during evaluation" ) ;
+			if (pr == REngineEvalException.INVALID_INPUT){
+				throw new REngineEvalException(this, "Eval error (invalid input)", REngineEvalException.INVALID_INPUT );
+			}
+			if (pr == REngineEvalException.ERROR) {
+				throw new REngineEvalException( this, "error during evaluation", REngineEvalException.ERROR ) ;
+			}
 			rni.rniPreserve(pr);
 			ref = new REXPReference(this, new Long(pr));
 			if (resolve)
