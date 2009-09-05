@@ -160,7 +160,7 @@ public class RTest {
 			}
 			
 			{
-				System.out.println("* Test enviroment support");
+				System.out.println("* Test environment support");
 				REXP x = eng.parseAndEval("new.env(parent=baseenv())");
 				System.out.println("  new.env() = " + x);
 				if (x == null || !x.isEnvironment()) throw new TestException("pull of an environemnt failed");
@@ -178,6 +178,15 @@ public class RTest {
 				x = e.get("foo");
 				System.out.println("  get(\"foo\",parent) = " + x);
 				if (x == null || !x.isString() || !x.asString().equals("bar")) throw new TestException("get in the parent environemnt failed");
+				System.out.println( "  " ) ; 
+				eng.parseAndEval( "{ .env <- new.env(); .env$x <- 2 }" ) ;
+				REXP env = eng.get(".env", null, false );
+				x = eng.parseAndEval( "x+1", env, true ); 
+				System.out.println( "  R> { .env <- new.env(); .env$x <- 2 }" ); 
+				System.out.println( "  env = eng.get(\".env\", null, false )  " );
+				System.out.print( "  parseAndEval( \"x+1\", env, true)" );
+				if( !( x instanceof REXPDouble ) || x.asDouble() != 3.0 ) throw new TestException("eval within environment failed") ;
+				System.out.println( "  == 3.0     : ok" ); 
 				System.out.println("PASSED");
 			}
 			
