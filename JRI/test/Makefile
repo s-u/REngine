@@ -7,7 +7,10 @@ JAVA=java
 
 all: run
 
-RTest.class: RTest.java
+## RJavaClassLoader needs to be included for rJava-related
+## tests. Fore real projects the CLASSPATH should be set properly
+## to include system.file('java','boot',package='rJava')
+RTest.class: RTest.java RJavaClassLoader.java
 	$(JAVAC) $(JFLAGS) -classpath $(CP) $^
 
 run: RTest.class

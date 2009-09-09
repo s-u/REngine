@@ -15,8 +15,12 @@ public class RTest {
 			// REngine eng = new JRIEngine();
 			// if you imported org.rosuda.REngine.JRI.JRIEngine
 			// the above illustrates how you can switch the engine (JRI vs Rserve) without re-compiling your code
-			
-			System.out.println("R Version: " + eng.parseAndEval("R.version.string").asString());
+
+			if (args.length > 0 && args[0].equals("--debug")) { // --debug waits for <Enter> so a debugger can be attached
+				System.out.println("R Version: " + eng.parseAndEval("R.version.string").asString());
+				System.out.println("ok, connected, press <enter> to continue\n");
+				System.in.read();
+			}
 			
 			{
 				System.out.println("* Test string and list retrieval");
@@ -204,178 +208,7 @@ public class RTest {
 				System.out.println("PASSED");
 			}
 			
-			{
-				System.out.println("* Test wrapping of java objects into REXP (REXPWrapper)");
-				
-				REXP rx ; 
-				
-				System.out.print("  String" ) ;
-				rx = eng.wrap( "hello" ) ;
-				if( ! ( rx instanceof REXPString ) ){ throw new TestException( "wrap( String ) -> REXPString" ); }
-				System.out.println("  -> REXPString : ok" ) ;
-				
-				System.out.print("  String[]" ) ;
-				rx = eng.wrap( new String[]{ "hello", "world" } ) ;
-				if( ! ( rx instanceof REXPString ) ){ throw new TestException( "wrap( String[] ) -> REXPString" ); }
-				System.out.println("  -> REXPString : ok" ) ;
-				
-				/* byte */
-				
-				System.out.print("  byte" ) ;
-				rx = eng.wrap( Byte.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( byte ) -> REXPRaw" ); }
-				System.out.println("  -> REXPRaw : ok" ) ;
-				
-				System.out.print("  byte[]" ) ;
-				rx = eng.wrap( new byte[]{ Byte.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( byte[] ) -> REXPRaw" ); }
-				System.out.println("  -> REXPRaw : ok" ) ;
-				
-				System.out.print("  Byte" ) ;
-				rx = eng.wrap( new Byte( Byte.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( Byte ) -> REXPRaw" ); }
-				System.out.println("  -> REXPRaw : ok" ) ;
-				
-				System.out.print("  Byte[]" ) ;
-				rx = eng.wrap( new Byte[]{ new Byte( Byte.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPRaw ) ){ throw new TestException( "wrap( Byte[] ) -> REXPRaw" ); }
-				System.out.println("  -> REXPRaw : ok" ) ;
-				
-				/* short */
-				
-				System.out.print("  short" ) ;
-				rx = eng.wrap( Short.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( short ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  short[]" ) ;
-				rx = eng.wrap( new short[]{ Short.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( short[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Short" ) ;
-				rx = eng.wrap( new Short( Short.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Short ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Short[]" ) ;
-				rx = eng.wrap( new Short[]{ new Short( Short.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Short[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				/* int */
-				
-				System.out.print("  int" ) ;
-				rx = eng.wrap( Integer.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( int ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  int[]" ) ;
-				rx = eng.wrap( new int[]{ Integer.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( int[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Integer" ) ;
-				rx = eng.wrap( new Integer( Integer.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Integer ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Integer[]" ) ;
-				rx = eng.wrap( new Integer[]{ new Integer( Integer.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Integer[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				/* long */
-				
-				System.out.print("  long" ) ;
-				rx = eng.wrap( Long.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( long ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  long[]" ) ;
-				rx = eng.wrap( new long[]{ Long.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( long[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Long" ) ;
-				rx = eng.wrap( new Long( Long.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Long ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				System.out.print("  Long[]" ) ;
-				rx = eng.wrap( new Long[]{ new Long( Long.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPInteger ) ){ throw new TestException( "wrap( Long[] ) -> REXPInteger" ); }
-				System.out.println("  -> REXPInteger : ok" ) ;
-				
-				/* float */
-				
-				System.out.print("  float" ) ;
-				rx = eng.wrap( Float.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( float ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  float[]" ) ;
-				rx = eng.wrap( new float[]{ Float.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( float[] ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  Float" ) ;
-				rx = eng.wrap( new Float( Float.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Float ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  Float[]" ) ;
-				rx = eng.wrap( new Float[]{ new Float( Float.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Float[] ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				/* double */
-				
-				System.out.print("  double" ) ;
-				rx = eng.wrap( Double.MIN_VALUE ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( double ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  double[]" ) ;
-				rx = eng.wrap( new double[]{ Double.MIN_VALUE} ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( double[] ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  Double" ) ;
-				rx = eng.wrap( new Double( Double.MIN_VALUE ) ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Double ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				System.out.print("  Double[]" ) ;
-				rx = eng.wrap( new Double[]{ new Double( Double.MIN_VALUE ) } ) ;
-				if( ! ( rx instanceof REXPDouble ) ){ throw new TestException( "wrap( Double[] ) -> REXPDouble" ); }
-				System.out.println("  -> REXPDouble : ok" ) ;
-				
-				/* boolean */
-				
-				System.out.print("  boolean" ) ;
-				rx = eng.wrap( Boolean.TRUE ) ;
-				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( boolean ) -> REXPLogical" ); }
-				System.out.println("  -> REXPLogical : ok" ) ;
-				
-				System.out.print("  boolean[]" ) ;
-				rx = eng.wrap( new boolean[]{ Boolean.TRUE} ) ;
-				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( boolean[] ) -> REXPLogical" ); }
-				System.out.println("  -> REXPLogical : ok" ) ;
-				
-				System.out.print("  Boolean" ) ;
-				rx = eng.wrap( new Boolean( Boolean.TRUE ) ) ;
-				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( Boolean ) -> REXPLogical" ); }
-				System.out.println("  -> REXPLogical : ok" ) ;
-				
-				System.out.print("  Boolean[]" ) ;
-				rx = eng.wrap( new Boolean[]{ new Boolean( Boolean.TRUE ) } ) ;
-				if( ! ( rx instanceof REXPLogical ) ){ throw new TestException( "wrap( Boolean[] ) -> REXPLogical" ); }
-				System.out.println("  -> REXPLogical : ok" ) ;
-				
-				System.out.println("PASSED" ) ;
-			}
-			
+			/* SU: wrap() tests removed since they didn't even compile ... */
 			
 			{
 				System.out.println("* Test generation of exceptions");
@@ -425,38 +258,42 @@ public class RTest {
 			
 			{
 				System.out.println("* Test creation of references to java objects");
-				REXPReference ref = ((JRIEngine)eng).createRJavaRef( null );
-				if( ref != null ){
-					throw new TestException( "null object should create null REXPReference" ) ; 
+				if (!((REXPLogical)eng.parseAndEval("require(rJava)")).isTrue()[0]) {
+					System.out.println("  - rJava is not available, skipping test\n");
+				} else {
+					eng.parseAndEval(".jinit()");
+					REXPReference ref = ((JRIEngine)eng).createRJavaRef( null );
+					if( ref != null ){
+						throw new TestException( "null object should create null REXPReference" ) ; 
+					}
+					System.out.println("  eng.createRJavaRef(null)     ->  null : ok" ) ;
+					
+					System.out.println( "  pushing a java.awt.Point to R " ) ;
+					java.awt.Point p = new java.awt.Point( 10, 10) ;
+					ref = ((JRIEngine)eng).createRJavaRef( p ); 
+					eng.assign( "p", ref ) ;
+					String cmd = "exists('p') && inherits( p, 'jobjRef') && .jclass(p) == 'java.awt.Point' " ; 
+					System.out.println( "  test if the object was pushed correctly " ) ;
+					boolean ok = ((REXPLogical)eng.parseAndEval( cmd )).isTRUE()[0] ;
+					if( !ok ){
+						throw new TestException( "could not push java object to R" ) ;
+					}
+					System.out.println( "  R> " + cmd + "  :  ok " ) ;
+				
+					eng.parseAndEval( ".jcall( p, 'V', 'move', 20L, 20L )" ) ; 
+					System.out.println("  manipulate the object " ) ;
+					if( p.x != 20 || p.y != 20 ){
+						throw new TestException( "not modified the java object with R" ) ; 
+					}
+					System.out.println("  R> .jcall( p, 'V', 'move', 20L, 20L )   -> p.x == 20 ,p.y == 20 : ok " ) ;
+					
+					/* bug #126, use of .jfield with guess of the return class using reflection */
+					System.out.print("  using .jfield with reflection (bug #126)" ) ;
+					eng.parseAndEval( ".jfield( p, , 'x')" ) ; /* used to crash the jvm; (not really - the code in the bgu just forgot to init rJava)  */
+					System.out.println(" : ok " ) ;
+				
+					System.out.println("PASSED");
 				}
-				System.out.println("  eng.createRJavaRef(null)     ->  null : ok" ) ;
-				
-				System.out.println( "  pushing a java.awt.Point to R " ) ;
-				java.awt.Point p = new java.awt.Point( 10, 10) ;
-				ref = ((JRIEngine)eng).createRJavaRef( p ); 
-				eng.assign( "p", ref ) ;
-				String cmd = "exists('p') && inherits( p, 'jobjRef') && .jclass(p) == 'java.awt.Point' " ; 
-				System.out.println( "  test if the object was pushed correctly " ) ;
-				boolean ok = ((REXPLogical)eng.parseAndEval( cmd )).isTRUE()[0] ;
-				if( !ok ){
-					throw new TestException( "could not push java object to R" ) ;
-				}
-				System.out.println( "  R> " + cmd + "  :  ok " ) ;
-				
-				eng.parseAndEval( ".jcall( p, 'V', 'move', 20L, 20L )" ) ; 
-				System.out.println("  manipulate the object " ) ;
-				if( p.x != 20 || p.y != 20 ){
-					throw new TestException( "not modified the java object with R" ) ; 
-				}
-				System.out.println("  R> .jcall( p, 'V', 'move', 20L, 20L )   -> p.x == 20 ,p.y == 20 : ok " ) ;
-				
-				/* bug #126, use of .jfield with guess of the return class using reflection */
-				System.out.print("  using .jfield with reflection (bug #126)" ) ;
-				eng.parseAndEval( ".jfield( p, , 'x')" ) ; /* used to crash the jvm */
-				System.out.println(" : ok " ) ;
-				
-				
-				System.out.println("PASSED");
 			}
 			
 			
