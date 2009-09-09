@@ -80,44 +80,57 @@ public class JRIEngine extends REngine {
 	
 	/** deafault constructor - this constructor is also used via <code>createEngine</code> factory call and implies --no-save R argument */
 	public JRIEngine() throws REngineException {
-		this(new String[] { "--no-save" },null);
+		this(new String[] { "--no-save" }, null);
 	}
 	
 	public JRIEngine(String args[]) throws REngineException {
-		this(args,null);
+		this(args, null);
 	}
 	
+	/** creates a JRI engine with specified delegate for callbacks
+	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
+	 *  @param callback delegate class to process event loop callback from R or <code>null</code> if no event loop is desired */
 	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
 		if (Rengine.getVersion() < requiredAPIversion)
 			throw new REngineException(null, "JRI API version is too old, update rJava/JRI to match the REngine API");
 		// the default modus operandi is without event loop and with --no-save option
-		rniMutex = new Mutex();
-		rni = new Rengine(args, callbacks==null?false:true, callbacks);
-		if (!rni.waitForR())
-			throw(new REngineException(this, "Unable to initialize R"));
-		if (rni.rniGetVersion() < requiredAPIversion)
-			throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
-		globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-		nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
-		emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
-		baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
-		nullValue = new REXPNull();
-		R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
+		rni = new Rengine(args, callbacks == null ? false : true, callbacks);
+		rniMutex = rni.getRsync();
+		boolean obtainedLock = rniMutex.safeLock(); // this will inherently wait for R to become ready
+		try {
+			if (!rni.waitForR())
+				throw(new REngineException(this, "Unable to initialize R"));
+			if (rni.rniGetVersion() < requiredAPIversion)
+				throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
+			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			nullValue = new REXPNull();
+			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
+		} finally {
+			if (obtainedLock) rniMutex.unlock();
+		}
 	}
 	
 	/** WARNING: legacy fallback for hooking from R into an existing Rengine - do NOT use for creating a new Rengine - it will go away eventually */
 	public JRIEngine(Rengine eng) throws REngineException {
-		rniMutex = new Mutex();
 		rni = eng;
 		if (rni.rniGetVersion() < 0x109)
 			throw(new REngineException(this, "R JRI engine is too old - RNI API 1.9 (JRI 0.5) or newer is required"));
-		globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-		nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
-		emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
-		baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
-		nullValue = new REXPNull();
-		R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
-	}		
+		rniMutex = rni.getRsync();
+		boolean obtainedLock = rniMutex.safeLock();
+		try {
+			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			nullValue = new REXPNull();
+			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
+		} finally {
+			if (obtainedLock) rniMutex.unlock();
+		}
+	}	
 	
 	public REXP parse(String text, boolean resolve) throws REngineException {
 		REXP ref = null;
