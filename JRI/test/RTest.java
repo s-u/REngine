@@ -449,6 +449,13 @@ public class RTest {
 					throw new TestException( "not modified the java object with R" ) ; 
 				}
 				System.out.println("  R> .jcall( p, 'V', 'move', 20L, 20L )   -> p.x == 20 ,p.y == 20 : ok " ) ;
+				
+				/* bug #126, use of .jfield with guess of the return class using reflection */
+				System.out.print("  using .jfield with reflection (bug #126)" ) ;
+				eng.parseAndEval( ".jfield( p, , 'x')" ) ; /* used to crash the jvm */
+				System.out.println(" : ok " ) ;
+				
+				
 				System.out.println("PASSED");
 			}
 			
