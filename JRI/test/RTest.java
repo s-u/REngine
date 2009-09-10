@@ -261,6 +261,20 @@ public class RTest {
 				if (!((REXPLogical)eng.parseAndEval("require(rJava)")).isTrue()[0]) {
 					System.out.println("  - rJava is not available, skipping test\n");
 				} else {
+					
+					/* try to use rJava before it is initialized */
+					System.out.print("  checking that rJava generate error if not yet loaded" ) ;
+					boolean error = false; 
+					try{
+						eng.parseAndEval( "p <- .jnew( 'java/awt/Point' ) " ) ; 
+					} catch( REngineException e){
+						error = true ;
+					}
+					if( !error ){
+						throw new TestException( "rJava not initiliazed, but did not generate error" ) ;
+					}
+					System.out.println( " : ok" ) ;
+					
 					eng.parseAndEval(".jinit()");
 					REXPReference ref = ((JRIEngine)eng).createRJavaRef( null );
 					if( ref != null ){
