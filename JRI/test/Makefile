@@ -1,6 +1,11 @@
 CP=../../REngine.jar:../JRIEngine.jar
 JFLAGS=-source 1.4 -target 1.4
-JRT=-Djava.library.path=../../../JRI/src:.
+
+## NOTE: if you don't use GNU make uncomment the next line and comment out the subsequent one
+##JRI=../../../JRI/src
+JRI=$(shell if test -e ../../../JRI/src/JRI.jar; then echo ../../../JRI/src; else echo "cat(system.file('jri',package='rJava'))"|R --slave --no-save; fi)
+
+JRT=-Djava.library.path=${JRI}:.
 
 JAVAC=javac
 JAVA=java
