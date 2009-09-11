@@ -14,7 +14,7 @@ import org.rosuda.REngine.*;
 /** <code>JRIEngine</code> is a <code>REngine</code> implementation using JRI (Java/R Interface).
  <p>
  Note that at most one JRI instance can exist in a given JVM process, because R does not support multiple threads. <code>JRIEngine</code> itself is thread-safe, so it is possible to invoke its methods from any thread. However, this is achieved by serializing all entries into R, so be aware of possible deadlock conditions if your R code calls back into Java (<code>JRIEngine</code> is re-entrant from the same thread so deadlock issues can arise only with multiple threads inteacting thorugh R). */
-public class JRIEngine extends REngine {
+public class JRIEngine extends REngine implements RMainLoopCallbacks {
 	// internal R types as defined in Rinternals.h
 	static final int NILSXP = 0; /* nil = NULL */
 	static final int SYMSXP = 1; /* symbols */
@@ -50,8 +50,8 @@ public class JRIEngine extends REngine {
 	/** reference to the underlying low-level JRI (RNI) engine */
 	Rengine rni = null;
 	
-	/** event loop callabcks associated with this engine. (Currently callbacks are not supported yet) */
-	RMainLoopCallbacks callbackObject = null;
+	/** event loop callbacks associated with this engine. */
+	REngineCallbacks callbacks = null;
 	
 	/** mutex synchronizing access to R through JRIEngine.<p> NOTE: only access through this class is synchronized. Any other access (e.g. using RNI directly) is NOT. */
 	Mutex rniMutex = null;
@@ -74,6 +74,12 @@ public class JRIEngine extends REngine {
 		return jriEngine;
 	}
 	
+	public static REngine createEngine(String[] args, REngineCallbacks callbacks, boolean runREPL) throws REngineException {
+		if (jriEngine != null)
+			throw new REngineException(jriEngine, "engine already running - cannot use extended constructor on a running instance");
+		return jriEngine = new JRIEngine(args, callbacks, runREPL);
+	}
+	
 	public Rengine getRni() {
 		return rni;
 	}
@@ -81,29 +87,64 @@ public class JRIEngine extends REngine {
 	/** default constructor - this constructor is also used via <code>createEngine</code> factory call and implies --no-save R argument, no callbacks and no REPL.
 	 <p>This is equivalent to <code>JRIEngine(new String[] { "--no-save" }, null, false)</code> */
 	public JRIEngine() throws REngineException {
-		this(new String[] { "--no-save" }, null, false);
+		this(new String[] { "--no-save" }, (REngineCallbacks) null, false);
 	}
 	
 	/** create <code>JRIEngine</code> with specified R command line arguments, no callbacks and no REPL.
 	 <p>This is equivalent to <code>JRIEngine(args, null, false)</code> */
 	public JRIEngine(String args[]) throws REngineException {
-		this(args, null, false);
+		this(args, (REngineCallbacks) null, false);
 	}
 
-	/** creates a JRI engine with specified delegate for callbacks. The event loop is started if <Code>callbacks</code> in not <code>null</code>.
+	/** creates a JRI engine with specified delegate for callbacks (JRI compatibility mode ONLY!). The event loop is started if <Code>callbacks</code> in not <code>null</code>.
 	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
-	 *  @param callbacks delegate class to process event loop callback from R or <code>null</code> if no event loop is desired */
+	 *  @param callbacks delegate class to process event loop callback from R or <code>null</code> if no event loop is desired 
+	 **/
 	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
-		this(args, null, (callbacks == null) ? false : true);
+		this(args, callbacks, (callbacks == null) ? false : true);
 	}
-	
+
 	/** creates a JRI engine with specified delegate for callbacks
 	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
 	 *  @param callback delegate class to process callbacks from R or <code>null</code> if no callbacks are desired
 	 *  @param runREPL if set to <code>true</code> then the event loop (REPL) will be started, otherwise the engine is in direct operation mode.
 	 */
+	public JRIEngine(String args[], REngineCallbacks callbacks, boolean runREPL) throws REngineException {
+		// if Rengine hasn't been able to load the native JRI library in its static 
+		// initializer, throw an exception 
+		if (!Rengine.jriLoaded)
+			throw new REngineException (null, "Cannot load JRI native library");
+		
+		if (Rengine.getVersion() < requiredAPIversion)
+			throw new REngineException(null, "JRI API version is too old, update rJava/JRI to match the REngine API");
+		
+		this.callbacks = callbacks;
+		// the default modus operandi is without event loop and with --no-save option
+		rni = new Rengine(args, runREPL, (callbacks == null) ? null : this);
+		rniMutex = rni.getRsync();
+		boolean obtainedLock = rniMutex.safeLock(); // this will inherently wait for R to become ready
+		try {
+			if (!rni.waitForR())
+				throw(new REngineException(this, "Unable to initialize R"));
+			if (rni.rniGetVersion() < requiredAPIversion)
+				throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
+			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			nullValue = new REXPNull();
+			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
+		} finally {
+			if (obtainedLock) rniMutex.unlock();
+		}
+	}
+	
+	/** creates a JRI engine with specified delegate for callbacks (JRI compatibility mode ONLY! Will be deprecated soon!)
+	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
+	 *  @param callback delegate class to process callbacks from R or <code>null</code> if no callbacks are desired
+	 *  @param runREPL if set to <code>true</code> then the event loop (REPL) will be started, otherwise the engine is in direct operation mode.
+	 */
 	public JRIEngine(String args[], RMainLoopCallbacks callbacks, boolean runREPL) throws REngineException {
-
 		// if Rengine hasn't been able to load the native JRI library in its static 
 		// initializer, throw an exception 
 		if (!Rengine.jriLoaded)
@@ -644,4 +685,25 @@ public class JRIEngine extends REngine {
 		return ref ; 
 	}
 	
+	/** JRI callbacks forwarding */
+	public void   rWriteConsole (Rengine re, String text, int oType) {
+		if (callbacks != null && callbacks instanceof REngineOutputInterface)
+			((REngineOutputInterface)callbacks).RWriteConsole(this, text, oType);
+	}
+	public void   rBusy         (Rengine re, int which) { }
+	public synchronized String rReadConsole  (Rengine re, String prompt, int addToHistory) {
+		try { wait(); } catch (Exception e) {}
+		return "";
+	}
+	public void   rShowMessage  (Rengine re, String message) {
+		if (callbacks != null && callbacks instanceof REngineOutputInterface)
+			((REngineOutputInterface)callbacks).RShowMessage(this, message);
+	}
+	public String rChooseFile   (Rengine re, int newFile) { return null; }
+	public void   rFlushConsole (Rengine re) {
+		if (callbacks != null && callbacks instanceof REngineOutputInterface)
+			((REngineOutputInterface)callbacks).RFlushConsole(this);
+	}
+	public void   rSaveHistory  (Rengine re, String filename) {}
+	public void   rLoadHistory  (Rengine re, String filename) {}
 }

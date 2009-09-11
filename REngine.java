@@ -19,7 +19,21 @@ public abstract class REngine {
 		Object o=m.invoke(null,(Object[])null);
 		return lastEngine=(REngine)o;
     }
-    
+
+	/** This is the extended constructor for REngine classes. It uses reflection to call createEngine method on the given REngine class with some additional control over the engine. Note that not all engines may support the extended version.
+	 @param klass fully qualified class-name of a REngine implementation
+	 @param args arguments to pass to R for initialization
+	 @param callbacks delegate for REngine callbacks or <code>null</code> if callbacks won't be serviced (engine may not support callbacks)
+	 @param runREPL if <code>true</code> then REPL will be started (if supported by the engine)
+	 @return REngine implementation or <code>null</code> if <code>createEngine</code> invokation failed */
+	public static REngine engineForClass(String klass, String[] args, REngineCallbacks callbacks, boolean runREPL) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+		Class cl = Class.forName(klass);
+		if (cl == null) throw new ClassNotFoundException("can't find engine class " + klass);
+		Method m = cl.getMethod("createEngine", new Class[] { String[].class, REngineCallbacks.class, Boolean.TYPE });
+		Object o = m.invoke(null, new Object[] { args, callbacks, new Boolean(runREPL) });
+		return lastEngine = (REngine)o;
+	}
+	
     /** retrieve the last created engine
 		@return last created engine or <code>null</code> if no engine was created yet */
     public static REngine getLastEngine() {

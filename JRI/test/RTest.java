@@ -1,5 +1,4 @@
 import org.rosuda.REngine.*;
-import org.rosuda.REngine.JRI.JRIEngine; 
 
 class TestException extends Exception {
 	public TestException(String msg) { super(msg); }
@@ -10,11 +9,11 @@ class TestException extends Exception {
 public class RTest {
 	public static void main(String[] args) {
 		try { 
-			REngine eng = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine");
-			// alternatively you could use
-			// REngine eng = new JRIEngine();
-			// if you imported org.rosuda.REngine.JRI.JRIEngine
-			// the above illustrates how you can switch the engine (JRI vs Rserve) without re-compiling your code
+			// the simple initialization is done using
+			// REngine eng = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine");
+			// but the one below allows us to see all output from R via REngineStdOutput()
+			// However, it won't succeed if the engine doesn't support callbacks, so be prepared to fall back
+			REngine eng = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine", args, new REngineStdOutput(), false);
 
 			if (args.length > 0 && args[0].equals("--debug")) { // --debug waits for <Enter> so a debugger can be attached
 				System.out.println("R Version: " + eng.parseAndEval("R.version.string").asString());
@@ -260,8 +259,9 @@ public class RTest {
 				System.out.println("* Test creation of references to java objects");
 				if (!((REXPLogical)eng.parseAndEval("require(rJava)")).isTrue()[0]) {
 					System.out.println("  - rJava is not available, skipping test\n");
+				} else if (!(eng instanceof org.rosuda.REngine.JRI.JRIEngine)) {
+					System.out.println("  - the used engine is not JRIEngine, skipping test\n");
 				} else {
-					
 					/* try to use rJava before it is initialized */
 					System.out.print("  checking that rJava generate error if not yet loaded" ) ;
 					boolean error = false; 
@@ -276,7 +276,7 @@ public class RTest {
 					System.out.println( " : ok" ) ;
 					
 					eng.parseAndEval(".jinit()");
-					REXPReference ref = ((JRIEngine)eng).createRJavaRef( null );
+					REXPReference ref = ((org.rosuda.REngine.JRI.JRIEngine)eng).createRJavaRef( null );
 					if( ref != null ){
 						throw new TestException( "null object should create null REXPReference" ) ; 
 					}
@@ -284,7 +284,7 @@ public class RTest {
 					
 					System.out.println( "  pushing a java.awt.Point to R " ) ;
 					java.awt.Point p = new java.awt.Point( 10, 10) ;
-					ref = ((JRIEngine)eng).createRJavaRef( p ); 
+					ref = ((org.rosuda.REngine.JRI.JRIEngine)eng).createRJavaRef( p ); 
 					eng.assign( "p", ref ) ;
 					String cmd = "exists('p') && inherits( p, 'jobjRef') && .jclass(p) == 'java.awt.Point' " ; 
 					System.out.println( "  test if the object was pushed correctly " ) ;
