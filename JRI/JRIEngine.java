@@ -78,23 +78,41 @@ public class JRIEngine extends REngine {
 		return rni;
 	}
 	
-	/** deafault constructor - this constructor is also used via <code>createEngine</code> factory call and implies --no-save R argument */
+	/** default constructor - this constructor is also used via <code>createEngine</code> factory call and implies --no-save R argument, no callbacks and no REPL.
+	 <p>This is equivalent to <code>JRIEngine(new String[] { "--no-save" }, null, false)</code> */
 	public JRIEngine() throws REngineException {
-		this(new String[] { "--no-save" }, null);
+		this(new String[] { "--no-save" }, null, false);
 	}
 	
+	/** create <code>JRIEngine</code> with specified R command line arguments, no callbacks and no REPL.
+	 <p>This is equivalent to <code>JRIEngine(args, null, false)</code> */
 	public JRIEngine(String args[]) throws REngineException {
-		this(args, null);
+		this(args, null, false);
+	}
+
+	/** creates a JRI engine with specified delegate for callbacks. The event loop is started if <Code>callbacks</code> in not <code>null</code>.
+	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
+	 *  @param callbacks delegate class to process event loop callback from R or <code>null</code> if no event loop is desired */
+	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
+		this(args, null, (callbacks == null) ? false : true);
 	}
 	
 	/** creates a JRI engine with specified delegate for callbacks
 	 *  @param args arguments to pass to R (note that R usually requires something like <code>--no-save</code>!)
-	 *  @param callback delegate class to process event loop callback from R or <code>null</code> if no event loop is desired */
-	public JRIEngine(String args[], RMainLoopCallbacks callbacks) throws REngineException {
+	 *  @param callback delegate class to process callbacks from R or <code>null</code> if no callbacks are desired
+	 *  @param runREPL if set to <code>true</code> then the event loop (REPL) will be started, otherwise the engine is in direct operation mode.
+	 */
+	public JRIEngine(String args[], RMainLoopCallbacks callbacks, boolean runREPL) throws REngineException {
+
+		// if Rengine hasn't been able to load the native JRI library in its static 
+		// initializer, throw an exception 
+		if (!Rengine.jriLoaded)
+			throw new REngineException (null, "Cannot load JRI native library");
+		
 		if (Rengine.getVersion() < requiredAPIversion)
 			throw new REngineException(null, "JRI API version is too old, update rJava/JRI to match the REngine API");
 		// the default modus operandi is without event loop and with --no-save option
-		rni = new Rengine(args, callbacks == null ? false : true, callbacks);
+		rni = new Rengine(args, runREPL, callbacks);
 		rniMutex = rni.getRsync();
 		boolean obtainedLock = rniMutex.safeLock(); // this will inherently wait for R to become ready
 		try {
@@ -115,6 +133,11 @@ public class JRIEngine extends REngine {
 	
 	/** WARNING: legacy fallback for hooking from R into an existing Rengine - do NOT use for creating a new Rengine - it will go away eventually */
 	public JRIEngine(Rengine eng) throws REngineException {
+		// if Rengine hasn't been able to load the native JRI library in its static 
+		// initializer, throw an exception 
+		if (!Rengine.jriLoaded)
+			throw new REngineException (null, "Cannot load JRI native library");
+
 		rni = eng;
 		if (rni.rniGetVersion() < 0x109)
 			throw(new REngineException(this, "R JRI engine is too old - RNI API 1.9 (JRI 0.5) or newer is required"));
@@ -244,7 +267,10 @@ public class JRIEngine extends REngine {
 		return resolvePointer(ptr);
 	}
 
-	/** this is the actual implementation of <code>resolveReference</code> but it works directly on the long pointers to be more efficient when performing recursive de-referencing */
+	/** 
+	 * Turn an R pointer (long) into a REXP object.
+	 * 
+	 * This is the actual implementation of <code>resolveReference</code> but it works directly on the long pointers to be more efficient when performing recursive de-referencing */
 	REXP resolvePointer(long ptr) throws REngineException, REXPMismatchException {
 		if (ptr == 0) return nullValue;
 		REXP res = null;
@@ -366,7 +392,6 @@ public class JRIEngine extends REngine {
 		return res;
 	}
 
-	
 	public REXP createReference(REXP value) throws REngineException, REXPMismatchException {
 		if (value == null) throw(new REngineException(this, "createReference from a NULL value"));
 		if (value.isReference()) return value;
@@ -375,6 +400,14 @@ public class JRIEngine extends REngine {
 		return new REXPReference(this, new Long(ptr));
 	}
 	
+	/** 
+	 * Create an R object, returning its pointer, from an REXP java object.
+	 * 
+	 * @param value
+	 * @return long R pointer
+	 * @throws REngineException if any of the RNI calls fails
+	 * @throws REXPMismatchException only if some internal inconsistency happens. The internal logic should prevent invalid access to valid objects.
+	 */
 	long createReferencePointer(REXP value) throws REngineException, REXPMismatchException {
 		if (value.isReference()) { // if it's reference, return the handle if it's from this engine
 			REXPReference vref = (REXPReference) value;
