@@ -158,7 +158,7 @@ public class RList extends Vector implements List {
 	boolean ch = super.addAll(index, c);
 	if (names==null) return ch;
 	int l = c.size();
-	while (l>0) names.add(index, null);
+	while (l-- > 0) names.add(index, null);
 	return ch;
     }
 
@@ -266,6 +266,7 @@ public class RList extends Vector implements List {
 
     public void putAll(Map t) {
 	if (t==null) return;
+	// NOTE: this if branch is dead since RList cannot inherit from Map
 	if (t instanceof RList) { // we need some more sophistication for RLists as they may have null-names which we append
 	    RList l = (RList) t;
 	    if (names==null) {
@@ -292,6 +293,25 @@ public class RList extends Vector implements List {
 	}
     }
 
+    public void putAll(RList t) {
+	if (t == null) return;
+	RList l = (RList) t;
+	if (names==null) {
+	    addAll(l);
+	    return;
+	}
+	int n = l.size();
+	int i = 0;
+	while (i < n) {
+	    String key = l.keyAt(i);
+	    if (key == null)
+		add(l.at(i));
+	    else
+		put(key, l.at(i));
+	    i++;
+	}
+    }
+    
     public Object removeByKey(Object key) {
 	if (names==null) return null;
 	int i = names.indexOf(key);
