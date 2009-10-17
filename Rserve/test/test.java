@@ -1,4 +1,3 @@
-import org.rosuda.REngine.*;
 import org.rosuda.REngine.Rserve.*;
 
 class TestException extends Exception {
