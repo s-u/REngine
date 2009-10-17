@@ -90,7 +90,7 @@ public class RTest {
 				eng.assign("df", df);
 				REXP x = eng.parseAndEval("identical(df, iris)");
 				System.out.println("  identical(df, iris) = "+x);
-				if (x == null || !x.isLogical() || x.length() != 1 || !((REXPLogical)x).isTrue()[0])
+				if (x == null || !x.isLogical() || x.length() != 1 || !((REXPLogical)x).isTRUE()[0])
 					throw new TestException("Pass-through test for a data.frame failed");
 				System.out.println("PASSED");
 			}
@@ -257,7 +257,7 @@ public class RTest {
 			
 			{
 				System.out.println("* Test creation of references to java objects");
-				if (!((REXPLogical)eng.parseAndEval("require(rJava)")).isTrue()[0]) {
+				if (!((REXPLogical)eng.parseAndEval("require(rJava)")).isTRUE()[0]) {
 					System.out.println("  - rJava is not available, skipping test\n");
 				} else if (!(eng instanceof org.rosuda.REngine.JRI.JRIEngine)) {
 					System.out.println("  - the used engine is not JRIEngine, skipping test\n");
