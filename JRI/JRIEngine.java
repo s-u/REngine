@@ -690,20 +690,43 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		if (callbacks != null && callbacks instanceof REngineOutputInterface)
 			((REngineOutputInterface)callbacks).RWriteConsole(this, text, oType);
 	}
-	public void   rBusy         (Rengine re, int which) { }
+	
+	public void   rBusy         (Rengine re, int which) {
+		if (callbacks != null && callbacks instanceof REngineUIInterface)
+			((REngineUIInterface)callbacks).RBusyState(this, which);
+	}
+	
 	public synchronized String rReadConsole  (Rengine re, String prompt, int addToHistory) {
+		if (callbacks != null && callbacks instanceof REngineInputInterface)
+			return ((REngineInputInterface)callbacks).RReadConsole(this, prompt, addToHistory);
+		
 		try { wait(); } catch (Exception e) {}
 		return "";
 	}
+	
 	public void   rShowMessage  (Rengine re, String message) {
 		if (callbacks != null && callbacks instanceof REngineOutputInterface)
 			((REngineOutputInterface)callbacks).RShowMessage(this, message);
 	}
-	public String rChooseFile   (Rengine re, int newFile) { return null; }
+	
+	public String rChooseFile   (Rengine re, int newFile) {
+		if (callbacks != null && callbacks instanceof REngineUIInterface)
+			return ((REngineUIInterface)callbacks).RChooseFile(this, (newFile == 0));
+		return null;
+	}
+	
 	public void   rFlushConsole (Rengine re) {
 		if (callbacks != null && callbacks instanceof REngineOutputInterface)
 			((REngineOutputInterface)callbacks).RFlushConsole(this);
 	}
-	public void   rSaveHistory  (Rengine re, String filename) {}
-	public void   rLoadHistory  (Rengine re, String filename) {}
+	
+	public void   rSaveHistory  (Rengine re, String filename) {
+		if (callbacks != null && callbacks instanceof REngineConsoleHistoryInterface)
+			((REngineConsoleHistoryInterface)callbacks).RSaveHistory(this, filename);
+	}
+	
+	public void   rLoadHistory  (Rengine re, String filename) {
+		if (callbacks != null && callbacks instanceof REngineConsoleHistoryInterface)
+			((REngineConsoleHistoryInterface)callbacks).RLoadHistory(this, filename);
+	}
 }
