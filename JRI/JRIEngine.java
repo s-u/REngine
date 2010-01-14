@@ -438,6 +438,13 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		if (value.isReference()) return value;
 		long ptr = createReferencePointer(value);
 		if (ptr == 0) return null;
+		boolean obtainedLock = rniMutex.safeLock();
+		try {
+			rni.rniPreserve(ptr);
+		} finally {
+			if (obtainedLock)
+				rniMutex.unlock();
+		}
 		return new REXPReference(this, new Long(ptr));
 	}
 	
@@ -586,6 +593,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		try {
 			long pr = rni.rniParentEnv(rho);
 			if (pr == 0 || pr == R_NilValue) return null; // this should never happen, really
+			rni.rniPreserve(pr);
 			ref = new REXPReference(this, new Long(pr));
 			if (resolve)
 				ref = resolveReference(ref);
@@ -612,6 +620,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 				rho = ((Long)((REXPReference)globalEnv).getHandle()).longValue();
 			long p = rni.rniEval(rni.rniLCons(rni.rniInstallSymbol("new.env"), rni.rniCons(rho, R_NilValue, rni.rniInstallSymbol("parent"), false)), 0);
 			/* TODO: should we handle REngineEvalException.INVALID_INPUT and REngineEvalException.ERROR here, for completeness */
+			if (p != 0) rni.rniPreserve(p);
 			ref = new REXPReference(this, new Long(p));
 			if (resolve)
 				ref = resolveReference(ref);
