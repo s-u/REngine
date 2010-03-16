@@ -171,6 +171,10 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		} finally {
 			if (obtainedLock) rniMutex.unlock();
 		}
+		// register ourself as the main and last engine
+		lastEngine = this;
+		if (jriEngine == null)
+			jriEngine = this;
 	}
 	
 	/** creates a JRI engine with specified delegate for callbacks (JRI compatibility mode ONLY! Will be deprecated soon!)
@@ -204,6 +208,10 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		} finally {
 			if (obtainedLock) rniMutex.unlock();
 		}
+		// register ourself as the main and last engine
+		lastEngine = this;
+		if (jriEngine == null)
+			jriEngine = this;
 	}
 	
 	/** WARNING: legacy fallback for hooking from R into an existing Rengine - do NOT use for creating a new Rengine - it will go away eventually */
@@ -228,7 +236,11 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		} finally {
 			if (obtainedLock) rniMutex.unlock();
 		}
-	}	
+		// register ourself as the main and last engine
+		lastEngine = this;
+		if (jriEngine == null)
+			jriEngine = this;
+	}
 	
 	public REXP parse(String text, boolean resolve) throws REngineException {
 		REXP ref = null;
