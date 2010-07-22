@@ -9,6 +9,8 @@ public class test {
     public static void main(String[] args) {
 	try {
 	    RConnection c = new RConnection();
+	    // REngine is the backend-agnostic API -- using eng instead of c makes sure that we don't use Rserve extensions inadvertently
+	    REngine eng = (REngine) c;
 
 	    System.out.println(">>" + c.eval("R.version$version.string").asString() + "<<");
 
@@ -167,6 +169,33 @@ public class test {
 			System.out.println("PASSED");
 		}
 		
+		{ /* NAs in character vectors are mapped to null references in String[] and vice versa. Only Rserve 0.6-2 and later support NAa in character vectors. */
+			System.out.println("* Test handling of NAs in character vectors ('foo', NA, 'NA')");
+			System.out.print("  push String[] with NAs: ");
+			eng.assign("s", new String[] { "foo", null, "NA" });
+			int nas[] = eng.parseAndEval("is.na(s)").asIntegers();
+			for (int i = 0; i < nas.length; i++) System.out.print(nas[i] + " ");
+			if (nas.length != 3 || nas[0] != REXPLogical.FALSE || nas[1] != REXPLogical.TRUE || nas[2] != REXPLogical.FALSE)
+				throw new TestException("assigning null Strings as NAs has failed");
+			System.out.println(" - OK");
+			System.out.print("  pull String[] with NAs: ");
+			String s[] = eng.parseAndEval("c('foo', NA, 'NA')").asStrings();
+			for (int i = 0; i < s.length; i++) System.out.print(s[i] + " ");
+			if (s.length != 3 || s[0] == null || s[1] != null || s[2] == null)
+				throw new TestException("pulling Strings containin NAs has failed");
+			System.out.println(" - OK");
+			System.out.print("  compare pushed and constructed strings: ");
+			if (eng.parseAndEval("identical(s, c('foo', NA, 'NA'))").asInteger() != REXPLogical.TRUE)
+				throw new TestException("comparing Strings with NAs has failed");
+			System.out.println(" - OK");
+			System.out.print("  check isNA() for REXPString");
+			boolean na[] = eng.parseAndEval("s").isNA();
+			for (int i = 0; i < na.length; i++) System.out.print(" " + na[i]);
+			if (na.length != 3 || na[0] || !na[1] || na[2])
+				throw new TestException("isNA() test failed");
+			System.out.println(" - OK");
+			System.out.println("PASSED");
+		}
 		
 		{ // string encoding test (will work with Rserve 0.5-3 and higher only)
 			System.out.println("* Test string encoding support ...");

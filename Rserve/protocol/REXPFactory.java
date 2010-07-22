@@ -337,14 +337,21 @@ public class REXPFactory {
 		}
 		if (xt==XT_ARRAY_STR) {
 			int c = 0, i = o;
-			while (i < eox) if (buf[i++]==0) c++;
+			/* count the entries */
+			while (i < eox) if (buf[i++] == 0) c++;
 			String s[] = new String[c];
 			if (c > 0) {
 				c = 0; i = o;
 				while (o < eox) {
-					if (buf[o]==0) {
+					if (buf[o] == 0) {
 						try {
-							s[c]=new String(buf, i, o-i, RConnection.transferCharset);
+							if (buf[i] == -1) { /* if the first byte is 0xff (-1 in signed char) then it either needs to be skipped (doubling) or there is an NA value */
+								if (buf[i + 1] == 0)
+									s[c] = null; /* NA */
+								else
+									s[c] = new String(buf, i + 1, o - i - 1, RConnection.transferCharset);
+							} else
+								s[c] = new String(buf, i, o - i, RConnection.transferCharset);
 						} catch (java.io.UnsupportedEncodingException ex) {
 							s[c]="";
 						}
@@ -499,15 +506,16 @@ public class REXPFactory {
 				String sa[] = cont.asStrings();
 				int i=0;
 				while (i<sa.length) {
-					if (sa[i]!=null) {
+					if (sa[i] != null) {
 						try {
-							byte b[]=sa[i].getBytes(RConnection.transferCharset);
-							l+=b.length;
-							b=null;
+							byte b[] = sa[i].getBytes(RConnection.transferCharset);
+							if (b[0] == -1) l++;
+							l += b.length;
+							b = null;
 						} catch (java.io.UnsupportedEncodingException uex) {
 							// FIXME: we should so something ... so far we hope noone's gonna mess with the encoding
 						}
-					}
+					} else l++;
 					l++;
 					i++;
 				}
@@ -588,23 +596,26 @@ public class REXPFactory {
 			case XT_ARRAY_STR:
 			{
 				String sa[] = cont.asStrings();
-				int i=0, io=off;
-				while (i<sa.length) {
-					if (sa[i]!=null) {
+				int i = 0, io = off;
+				while (i < sa.length) {
+					if (sa[i] != null) {
 						try {
-							byte b[]=sa[i].getBytes(RConnection.transferCharset);
-							System.arraycopy(b,0,buf,io,b.length);
-							io+=b.length;
-							b=null;
+							byte b[] = sa[i].getBytes(RConnection.transferCharset);
+							if (b[0] == -1) /* if the first entry happens to be -1 then we need to double it so it doesn't get confused with NAs */
+								buf[io++] = -1;
+							System.arraycopy(b, 0, buf, io, b.length);
+							io += b.length;
+							b = null;
 						} catch (java.io.UnsupportedEncodingException uex) {
 							// FIXME: we should so something ... so far we hope noone's gonna mess with the encoding
 						}
-					}
-					buf[io++]=0;
+					} else
+						buf[io++] = -1; /* NAs are stored as 0xff (-1 in signed bytes) */
+					buf[io++] = 0;
 					i++;
 				}
-				i=io-off;
-				while ((i&3)!=0) { buf[io++]=1; i++; } // padding if necessary..
+				i = io - off;
+				while ((i & 3) != 0) { buf[io++] = 1; i++; } // padding if necessary..
 				break;
 			}
 			case XT_LIST_TAG:
