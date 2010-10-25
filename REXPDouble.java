@@ -12,7 +12,9 @@ public class REXPDouble extends REXPVector {
 	
 	/** checks whether a given double value is a NA representation in R. Note that NA is NaN but not all NaNs are NA. */
 	public static boolean isNA(double value) {
-		return Double.doubleToRawLongBits(value) == NA_bits;
+		/* on OS X i386 the MSB of the fraction is set even though R doesn't set it.
+		   Although this is technically a good idea (to make it a QNaN) it's not what R does and thus makes the comparison tricky */
+		return (Double.doubleToRawLongBits(value) & 0xfff7ffffffffffffL) == (NA_bits & 0xfff7ffffffffffffL);
 	}
 
 	/** create real vector of the length 1 with the given value as its first (and only) element */

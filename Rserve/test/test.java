@@ -33,6 +33,15 @@ public class test {
 		System.out.println(nas);
 		if (!nas.equals("[1] 1.0 0.5  NA NaN 3.5"))
 		    throw new TestException("NA/NaN assign+retrieve test failed");
+		REXP rx = c.eval("c(2.2, NA_real_, NaN)");
+		if (rx == null || !rx.isNumeric() || rx.isInteger())
+		    throw new TestException("NA/NaN pull test failed (invalid result)");
+		boolean nal[] = rx.isNA();
+		if (nal.length != 3 || nal[0] || !nal[1] || nal[2])
+		    throw new TestException("NS/NAN pull test: NA pull failed");
+		x = rx.asDoubles();
+		if (x.length != 3 || !Double.isNaN(x[2]) || REXPDouble.isNA(x[2]) || !REXPDouble.isNA(x[1]))
+		    throw new TestException("NS/NAN pull test: NA/NaN pull failed");		    
 		System.out.println("PASSED");
 	    }
 		
