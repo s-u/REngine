@@ -606,6 +606,30 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 				}
 			} else if (value.isSymbol())
 				return rni.rniInstallSymbol(value.asString()); // symbols need no attribute handling, hence get out right away
+			else if (value instanceof REXPJavaReference) { // we wrap Java references by calling new("jobjRef", ...)
+				Object jval = ((REXPJavaReference)value).getObject();
+				long jobj = rni.rniJavaToXref(jval);
+				rni.rniProtect(jobj);
+				long jobj_sym = rni.rniInstallSymbol("jobj");
+				long jclass_sym = rni.rniInstallSymbol("jclass");
+				String clname = "java/lang/Object";
+				if (jval != null) {
+					clname = jval.getClass().getName();
+					clname = clname.replace('.', '/');
+				}
+				long jclass = rni.rniPutString(clname);
+				rni.rniProtect(jclass);
+				long jobjRef = rni.rniPutString("jobjRef");
+				rni.rniProtect(jobjRef);
+				long ro = rni.rniEval(rni.rniLCons(rni.rniInstallSymbol("new"),
+								   rni.rniCons(jobjRef,
+									       rni.rniCons(jobj, 
+											   rni.rniCons(jclass, R_NilValue, jclass_sym, false),
+											   jobj_sym, false))
+								   ), 0);
+				rni.rniUnprotect(3);
+				ptr = ro;
+			}
 			if (ptr == R_NilValue)
 				return ptr;
 			if (ptr != 0) {
