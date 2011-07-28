@@ -151,7 +151,8 @@ public class RConnection extends REngine {
 	
     public void finalize() {
         close();
-        is=null; is=null;
+        is=null;
+	os=null;
     }
 
     /** get server version as reported during the handshake.
