@@ -1,17 +1,32 @@
 package org.rosuda.REngine;
 
-/** represents a pairlist in R */
+/** Represents a pairlist in R. Unlike the actual internal R implementation this one
+    does not use CAR/CDR/TAG linked representation but a @link{RList} object. */
 public class REXPList extends REXPVector {
 	private RList payload;
 	
+	/* create a new pairlist with the contents of a named R list and no attributes.
+	   @param list named list with the contents */
 	public REXPList(RList list) {
 		super();
 		payload=(list==null)?new RList():list;
 	}
 
+	/* create a new pairlist with the contents of a named R list and attributes.
+	   @param list named list with the contents
+	   @param attr attributes */
 	public REXPList(RList list, REXPList attr) {
 		super(attr);
 		payload=(list==null)?new RList():list;
+	}
+
+	/* create a pairlist containing just one pair comprising of one value and one name.
+	   This is a convenience constructor most commonly used to create attribute pairlists.
+	   @param value of the element in the pairlist (must not be <code>null</code>)
+	   @param name of the element in the pairlist (must not be <code>null</code>) */
+	public REXPList(REXP value, String name) {
+		super();
+		payload = new RList(new REXP[] { value }, new String[] { name });
 	}
 	
 	public int length() { return payload.size(); }
