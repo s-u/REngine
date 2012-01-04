@@ -63,6 +63,10 @@ public class REXPFactor extends REXPInteger {
 	public String[] asStrings() {
 		return factor.asStrings();
 	}
+
+	public Object asNativeJavaObject() {
+		return asStrings();
+	}
 	
 	public String toString() {
 		return super.toString()+"["+levels.length+"]";

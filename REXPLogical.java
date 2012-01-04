@@ -62,6 +62,10 @@ public class REXPLogical extends REXPVector {
 
 	public boolean isLogical() { return true; }
 
+	public Object asNativeJavaObject() {
+		return payload;
+	}
+
 	public int[] asIntegers() {
 		int p[] = new int[payload.length];
 		for (int i = 0; i < payload.length; i++) // map bytes to integers including NA representation

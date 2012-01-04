@@ -24,4 +24,8 @@ public class REXPRaw extends REXPVector {
 	public boolean isRaw() { return true; }
 
 	public byte[] asBytes() { return payload; }
+
+	public Object asNativeJavaObject() {
+		return payload;
+	}
 }

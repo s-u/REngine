@@ -24,6 +24,10 @@ public class REXPGenericVector extends REXPVector {
 		super(attr);
 		payload=(list==null)?new RList():list;
 	}
+
+	public Object asNativeJavaObject() {
+		return payload;
+	}
 	
 	public int length() { return payload.size(); }
 

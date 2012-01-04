@@ -81,6 +81,8 @@ public class REXP {
 	public RList asList() throws REXPMismatchException { throw new REXPMismatchException(this, "list"); }
 	/** returns the contents as a factor (if supported by the represented object) */
 	public RFactor asFactor() throws REXPMismatchException { throw new REXPMismatchException(this, "factor"); }
+	/** attempt to represent the REXP by a native Java object and return it. Note that this may lead to loss of information (e.g., factors may be returned as a string array) and attributes are ignored. Not all R types can be converted to native Java objects. Also note that R has no concept of scalars, so vectors of length 1 will always be returned as an arrays (i.e., <code>int[1]</code> and not <code>Integer</code>). */
+	public Object asNativeJavaObject() throws REXPMismatchException { throw new REXPMismatchException(this, "native Java Object"); }
 
 	/** returns the length of a vector object. Note that we use R semantics here, i.e. a matrix will have a length of <i>m * n</i> since it is represented by a single vector (see {@link #dim} for retrieving matrix and multidimentional-array dimensions).
 	 * @return length (number of elements) in a vector object

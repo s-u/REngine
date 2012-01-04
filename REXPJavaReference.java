@@ -17,6 +17,8 @@ public class REXPJavaReference extends REXP {
 	/** returns the Java object referenced by this REXP
 	 *  @return Java object */
 	public Object getObject() { return object; }
+
+ 	public Object asNativeJavaObject() { return object; }
 	
 	public String toString() {
 		return super.toString() + "[" + object + "]";

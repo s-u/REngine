@@ -28,4 +28,8 @@ public class REXPSymbol extends REXP {
 	public String toDebugString() {
 		return super.toDebugString()+"["+name+"]";
 	}
+
+	public Object asNativeJavaObject() {
+		return name;
+	}
 }

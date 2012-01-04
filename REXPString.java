@@ -31,6 +31,10 @@ public class REXPString extends REXPVector {
 
 	public boolean isString() { return true; }
 
+	public Object asNativeJavaObject() {
+		return payload;
+	}
+
 	public String[] asStrings() {
 		return payload;
 	}

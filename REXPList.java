@@ -28,7 +28,11 @@ public class REXPList extends REXPVector {
 		super();
 		payload = new RList(new REXP[] { value }, new String[] { name });
 	}
-	
+
+	public Object asNativeJavaObject() {
+		return payload;
+	}
+
 	public int length() { return payload.size(); }
 
 	public boolean isList() { return true; }

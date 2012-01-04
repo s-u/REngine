@@ -35,6 +35,10 @@ public class REXPDouble extends REXPVector {
 	
 	public int length() { return payload.length; }
 
+	public Object asNativeJavaObject() {
+		return payload;
+	}
+
 	/** return <code>true</code> */
 	public boolean isNumeric() { return true; }
 

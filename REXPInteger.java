@@ -28,6 +28,10 @@ public class REXPInteger extends REXPVector {
 		super(attr);
 		payload=(load==null)?new int[0]:load;
 	}
+
+	public Object asNativeJavaObject() {
+		return payload;
+	}
 	
 	public int length() { return payload.length; }
 
