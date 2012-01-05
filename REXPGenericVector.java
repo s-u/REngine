@@ -1,4 +1,6 @@
 package org.rosuda.REngine;
+import java.util.Vector;
+import java.util.HashMap;
 
 /** REXPGenericVector represents a generic vector in R. Its elements can be typically of any {@link REXP} type. */
 public class REXPGenericVector extends REXPVector {
@@ -25,8 +27,44 @@ public class REXPGenericVector extends REXPVector {
 		payload=(list==null)?new RList():list;
 	}
 
-	public Object asNativeJavaObject() {
-		return payload;
+	/* generic vectors are converted either to a <code>Map</code> (if it is a named vector and there are no duplicate names) or a <code>Vector</code>. The contained elements are converted using <code>asNativeJavaObject</code> recursively. */
+	public Object asNativeJavaObject() throws REXPMismatchException {
+		// we need to convert the inside as well
+		int n = payload.size();
+
+		// named list -> map but only if
+		//  a) all names are present
+		//  b) there are no duplicates in the names
+		if (payload.isNamed()) {
+			String[] names = payload.keys();
+			if (names.length == n) {
+				HashMap map = new HashMap();
+				boolean valid = true;
+				for (int i = 0; i < n; i++) {
+					if (map.containsKey(names[i])) {
+						valid = false;
+						break;
+					}
+					Object value = payload.elementAt(i);
+					if (value != null)
+						value = ((REXP) value).asNativeJavaObject();
+					map.put(value, names[i]);
+				}
+				if (valid)
+					return map;
+			}
+		}
+
+		// otherwise drop names and use just a vector
+		Vector v = new Vector();
+		for (int i = 0; i < n; i++) {
+			Object value = payload.elementAt(i);
+			if (value != null)
+				value = ((REXP) value).asNativeJavaObject();
+			v.addElement(value);
+		}
+
+		return v;
 	}
 	
 	public int length() { return payload.size(); }

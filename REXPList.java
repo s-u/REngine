@@ -29,8 +29,10 @@ public class REXPList extends REXPVector {
 		payload = new RList(new REXP[] { value }, new String[] { name });
 	}
 
-	public Object asNativeJavaObject() {
-		return payload;
+	public Object asNativeJavaObject() throws REXPMismatchException {
+		// since REXPGenericVector does the hard work, we just cheat and use it in turn
+		REXPGenericVector v = new REXPGenericVector(payload);
+		return v.asNativeJavaObject();
 	}
 
 	public int length() { return payload.size(); }
