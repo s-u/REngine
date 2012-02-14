@@ -505,12 +505,14 @@ public class REXPFactory {
 			{
 				String sa[] = cont.asStrings();
 				int i=0;
-				while (i<sa.length) {
+				while (i < sa.length) {
 					if (sa[i] != null) {
 						try {
 							byte b[] = sa[i].getBytes(RConnection.transferCharset);
-							if (b[0] == -1) l++;
-							l += b.length;
+							if (b.length > 0) {
+								if (b[0] == -1) l++;
+								l += b.length;
+							} else l = 4;
 							b = null;
 						} catch (java.io.UnsupportedEncodingException uex) {
 							// FIXME: we should so something ... so far we hope noone's gonna mess with the encoding
@@ -601,10 +603,12 @@ public class REXPFactory {
 					if (sa[i] != null) {
 						try {
 							byte b[] = sa[i].getBytes(RConnection.transferCharset);
-							if (b[0] == -1) /* if the first entry happens to be -1 then we need to double it so it doesn't get confused with NAs */
-								buf[io++] = -1;
-							System.arraycopy(b, 0, buf, io, b.length);
-							io += b.length;
+							if (b.length > 0) {
+								if (b[0] == -1) /* if the first entry happens to be -1 then we need to double it so it doesn't get confused with NAs */
+									buf[io++] = -1;
+								System.arraycopy(b, 0, buf, io, b.length);
+								io += b.length;
+							}
 							b = null;
 						} catch (java.io.UnsupportedEncodingException uex) {
 							// FIXME: we should so something ... so far we hope noone's gonna mess with the encoding
