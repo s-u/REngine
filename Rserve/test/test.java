@@ -155,17 +155,22 @@ public class test {
 			System.out.println("PASSED");
 	    }
 		{
-            System.out.println("* Matrix tests\n  matrix: create a matrix");
-            int m=100, n=100;
-            double[] mat=new double[m*n];
-            int i=0;
-            while (i<m*n) mat[i++]=i/100;
-            System.out.println("  matrix: assign a matrix");
-            c.assign("m", mat);
-            c.voidEval("m<-matrix(m,"+m+","+n+")");
-            System.out.println("matrix: cross-product");
-            double[][] mr=c.parseAndEval("crossprod(m,m)").asDoubleMatrix();
-			System.out.println("PASSED");
+		    System.out.println("* Matrix tests\n  matrix: create a matrix");
+		    int m = 100, n = 100;
+		    double[] mat=new double[m * n];
+		    { int i=0; while (i < m * n) mat[i++] = i / 100; }
+		    System.out.println("  matrix: assign/retrieve a matrix");
+		    c.assign("m", mat);
+		    c.voidEval("m<-matrix(m,"+m+","+n+")");
+		    System.out.println("  matrix: use createDoubleMatrix");
+		    double[][] A = new double[m][n];
+		    for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) A[i][j] = mat[i + j * m];
+		    c.assign("m2", REXP.createDoubleMatrix(A));
+		    if (c.eval("identical(m ,m2)").asInteger() != 1)
+			throw new TestException("matrix test failed: createDoubleMatrix result is not the same as direct assign");
+		    System.out.println("matrix: cross-product");
+		    double[][] mr = c.parseAndEval("crossprod(m,m)").asDoubleMatrix();
+		    System.out.println("PASSED");
 		}
 		
 		{
