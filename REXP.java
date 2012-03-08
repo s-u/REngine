@@ -175,31 +175,50 @@ public class REXP {
 	}
 	
 	//======= complex convenience methods
-	/** returns the content of the REXP as a matrix of doubles (2D-array: m[rows][cols]). This is the same form as used by popular math packages for Java, such as 
-		JAMA. This means that following leads to desired results:<br>
-        <code>Matrix m=new Matrix(c.eval("matrix(c(1,2,3,4,5,6),2,3)").asDoubleMatrix());</code>
-        @return 2D array of doubles in the form double[rows][cols] or <code>null</code> if the contents is no 2-dimensional matrix of doubles */
-    public double[][] asDoubleMatrix() throws REXPMismatchException {
+	/** returns the content of the REXP as a matrix of doubles (2D-array: m[rows][cols]). This is the same form as used by popular math packages for Java, such as JAMA. This means that following leads to desired results:<br>
+	 <code>Matrix m=new Matrix(c.eval("matrix(c(1,2,3,4,5,6),2,3)").asDoubleMatrix());</code><br>
+	 @return 2D array of doubles in the form double[rows][cols] or <code>null</code> if the contents is no 2-dimensional matrix of doubles */
+	public double[][] asDoubleMatrix() throws REXPMismatchException {
 		double[] ct = asDoubles();
-        REXP dim = getAttribute("dim");
-        if (dim==null) throw new REXPMismatchException(this, "matrix (dim attribute missing)");
-        int[] ds = dim.asIntegers();
-        if (ds.length!=2) throw new REXPMismatchException(this, "matrix (wrong dimensionality)");
+		REXP dim = getAttribute("dim");
+		if (dim == null) throw new REXPMismatchException(this, "matrix (dim attribute missing)");
+		int[] ds = dim.asIntegers();
+		if (ds.length != 2) throw new REXPMismatchException(this, "matrix (wrong dimensionality)");
 		int m = ds[0], n = ds[1];
-        double[][] r=new double[m][n];
-        // R stores matrices as matrix(c(1,2,3,4),2,2) = col1:(1,2), col2:(3,4)
-        // we need to copy everything, since we create 2d array from 1d array
-        int i=0,k=0;
-        while (i<n) {
-            int j=0;
-            while (j<m) {
-                r[j++][i]=ct[k++];
-            }
-            i++;
-        }
-        return r;
-    }
+		
+		double[][] r = new double[m][n];
+		// R stores matrices as matrix(c(1,2,3,4),2,2) = col1:(1,2), col2:(3,4)
+		// we need to copy everything, since we create 2d array from 1d array
+		int k = 0;
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++) 
+				r[j][i] = ct[k++];
+		return r;
+	}
 	
+	/** creates a REXP that represents a double matrix in R based on matrix of doubles (2D-array: m[rows][cols]). This is the same form as used by popular math packages for Java, such as JAMA. The result of this function can be used in {@link REngine.assign} to store a matrix in R.
+	 @param matrix array <code>double[rows][colums]</code> containing the matrix to convert into a REXP. If <code>matrix</code> is <code>null</code> or either of the dimensions is 0 then the resulting matrix will have the dimensions <code>0 x 0</code> (Note: Java cannot represent <code>0 x n</code> matrices for <code>n &gt; 0</code>, so special matrices with one dimension of 0 can only be created by setting dimensions directly).
+	 @return <code>REXPDouble</code> with "dim" attribute which constitutes a matrix in R */
+	public static REXP createDoubleMatrix(double[][] matrix) {
+		int m = 0, n = 0;
+		double a[];
+		if (matrix != null && matrix.length != 0 && matrix[0].length != 0) {
+			m = matrix.length;
+			n = matrix[0].length;
+			a = new double[m * n];
+			int k = 0;
+			for (int j = 0; j < n; j++)
+				for (int i = 0; i < m; i++)
+					a[k++] = matrix[i][j];
+		} else a = new double[0];
+		return new REXPDouble(a,
+				      new REXPList(
+						   new RList(
+							     new REXP[] { new REXPInteger(new int[] { m, n }) },
+							     new String[] { "dim" })
+						   )
+				      );
+	}
 	
 	//======= tools
 	/** creates a data frame object from a list object using integer row names
@@ -207,7 +226,7 @@ public class REXP {
 	 *  @return a data frame object
 	 *  @throws REXPMismatchException if the list is empty or any of the elements is not a vector */
 	public static REXP createDataFrame(RList l) throws REXPMismatchException {
-		if (l==null || l.size()<1) throw new REXPMismatchException(new REXPList(l), "data frame (must have dim>0)");
+		if (l == null || l.size() < 1) throw new REXPMismatchException(new REXPList(l), "data frame (must have dim>0)");
 		if (!(l.at(0) instanceof REXPVector)) throw new REXPMismatchException(new REXPList(l), "data frame (contents must be vectors)");
 		REXPVector fe = (REXPVector) l.at(0);
 		return
