@@ -512,12 +512,12 @@ public class REXPFactory {
 							if (b.length > 0) {
 								if (b[0] == -1) l++;
 								l += b.length;
-							} else l++;
+							}
 							b = null;
 						} catch (java.io.UnsupportedEncodingException uex) {
 							// FIXME: we should so something ... so far we hope noone's gonna mess with the encoding
 						}
-					} else l++;
+					} else l++; // NA = -1
 					l++;
 					i++;
 				}
