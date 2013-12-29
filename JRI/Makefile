@@ -8,7 +8,7 @@
 ## org/rosuda/JRI
 ## org/rosuda/REngine
 
-JRI_MAIN_SRC=$(wildcard ../../JRI/*.java)
+JRI_MAIN_SRC=$(wildcard ../../*.java)
 JRIENGINE_SRC=JRIEngine.java
 
 JAVAC=javac
