@@ -66,34 +66,61 @@ public class RConnection extends REngine {
 		this(null, 0, session);
     }
 
+
     RConnection(String host, int port, RSession session) throws RserveException {
         try {
             if (connected) s.close();
-            s=null;
+            s = null;
         } catch (Exception e) {
-            throw new RserveException(this,"Cannot connect: "+e.getMessage());
+            throw new RserveException(this,"Cannot connect: " + e.getMessage());
         }
-		if (session!=null) {
-			host=session.host;
-			port=session.port;
-		}
-        connected=false;
-		this.host=host;
-		this.port=port;
+	if (session != null) {
+	    host = session.host;
+	    port = session.port;
+	}
+        connected = false;
+	this.host = host;
+	this.port = port;
         try {
-            s=new Socket(host,port);
-			// disable Nagle's algorithm since we really want immediate replies
-			s.setTcpNoDelay(true);
+            Socket ss = new Socket(host,port);
+	    // disable Nagle's algorithm since we really want immediate replies
+	    ss.setTcpNoDelay(true);
+	    initWithSocket(ss, session);
         } catch (Exception sce) {
             throw new RserveException(this,"Cannot connect: "+sce.getMessage());
         }
+    }
+
+    /** create a connection based on a previously obtained
+	socket. This constructor allows the use of other communication
+	protocols than TCP/IP (if a Socket implementation exists) or
+	tunneling through other protocols that expose socket insteface
+	(such as SSL).
+	@param sock connected socket
+    */
+    
+    public RConnection(Socket sock) throws RserveException {
+	this.host = null;
+	this.port = 0;
         try {
-            is=s.getInputStream();
-            os=s.getOutputStream();
-        } catch (Exception gse) {
-            throw new RserveException(this,"Cannot get io stream: "+gse.getMessage());
+            if (connected) s.close();
+	    connected = false;
+            s = null;
+        } catch (Exception e) {
+            throw new RserveException(this,"Cannot connect: " + e.getMessage());
         }
-        rt=new RTalk(is,os);
+	initWithSocket(sock, null);
+    }
+
+    private void initWithSocket(Socket sock, RSession session) throws RserveException {
+	s = sock;
+        try {
+            is = s.getInputStream();
+            os = s.getOutputStream();
+        } catch (Exception gse) {
+            throw new RserveException(this,"Cannot get io stream: " + gse.getMessage());
+        }
+        rt = new RTalk(is,os);
 		if (session==null) {
 			byte[] IDs=new byte[32];
 			int n=-1;
