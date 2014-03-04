@@ -17,15 +17,26 @@ public class REngineException extends Exception {
 	/** engine associated with this exception */
     protected REngine engine;
 
-	/** creates an R engine exception
-	 @param engine engine associated with this exception
-	 @param msg message describing the cause */
+    /** creates an R engine exception
+	@param engine engine associated with this exception
+	@param msg message describing the cause
+	@param cause original cause if this is a chained exception
+    */
+    public REngineException(REngine engine, String msg, Throwable cause) {
+        super(msg, cause);
+        this.engine = engine;
+    }
+ 
+    /** creates an R engine exception
+	@param engine engine associated with this exception
+	@param msg message describing the cause
+    */
     public REngineException(REngine engine, String msg) {
         super(msg);
         this.engine = engine;
     }
- 
-	/** returns the engine associated with this exception
-	 @return engine associated with this exception */
-	public REngine getEngine() { return engine; }
+
+    /** returns the engine associated with this exception
+	@return engine associated with this exception */
+    public REngine getEngine() { return engine; }
 }

@@ -48,22 +48,28 @@ public class RserveException extends REngineException {
     }
 
     public String getMessage() {
-        return super.getMessage()+((reqReturnCode!=-1)?", request status: "+getRequestErrorDescription():"");
+        return super.getMessage() + ((reqReturnCode != -1) ? ", request status: " + getRequestErrorDescription() : "");
     }
     
     public RserveException(RConnection c, String msg) {
         this(c,msg,-1);
     }
 
-    public RserveException(RConnection c, String msg, int requestReturnCode) {
-        super(c, msg);
-        reqReturnCode=requestReturnCode;
-		if (c!=null) c.lastError=getMessage();
+    public RserveException(RConnection c, String msg, Throwable cause) {
+        super(c, msg, cause);
+	reqReturnCode = -1;
+	if (c != null) c.lastError = getMessage();
     }
 
-	public RserveException(RConnection c, String msg, RPacket p) {
-		this(c, msg, (p==null)?-1:p.getStat());
-	}
+    public RserveException(RConnection c, String msg, int requestReturnCode) {
+        super(c, msg);
+        reqReturnCode = requestReturnCode;
+	if (c != null) c.lastError = getMessage();
+    }
+
+    public RserveException(RConnection c, String msg, RPacket p) {
+	this(c, msg, (p == null) ? -1 : p.getStat());
+    }
 	
     public int getRequestReturnCode() {
         return reqReturnCode;

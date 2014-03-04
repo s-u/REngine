@@ -72,7 +72,7 @@ public class RConnection extends REngine {
             if (connected) s.close();
             s = null;
         } catch (Exception e) {
-            throw new RserveException(this,"Cannot connect: " + e.getMessage());
+            throw new RserveException(this, "Cannot close previous connection: " + e.getMessage(), e);
         }
 	if (session != null) {
 	    host = session.host;
@@ -87,7 +87,7 @@ public class RConnection extends REngine {
 	    ss.setTcpNoDelay(true);
 	    initWithSocket(ss, session);
         } catch (Exception sce) {
-            throw new RserveException(this,"Cannot connect: "+sce.getMessage());
+            throw new RserveException(this, "Cannot connect: "+sce.getMessage(), sce);
         }
     }
 
@@ -107,7 +107,7 @@ public class RConnection extends REngine {
 	    connected = false;
             s = null;
         } catch (Exception e) {
-            throw new RserveException(this,"Cannot connect: " + e.getMessage());
+            throw new RserveException(this, "Cannot close previous connection: " + e.getMessage(), e);
         }
 	initWithSocket(sock, null);
     }
@@ -118,7 +118,7 @@ public class RConnection extends REngine {
             is = s.getInputStream();
             os = s.getOutputStream();
         } catch (Exception gse) {
-            throw new RserveException(this,"Cannot get io stream: " + gse.getMessage());
+            throw new RserveException(this, "Cannot get io stream: " + gse.getMessage(), gse);
         }
         rt = new RTalk(is,os);
 		if (session==null) {
@@ -127,7 +127,7 @@ public class RConnection extends REngine {
 			try {
 				n=is.read(IDs);
 			} catch (Exception sre) {
-				throw new RserveException(this,"Error while receiving data: "+sre.getMessage());
+			    throw new RserveException(this, "Error while receiving data: "+sre.getMessage(), sre);
 			}
 			try {
 				if (n!=32) {
@@ -135,16 +135,16 @@ public class RConnection extends REngine {
 				}
 				String ids=new String(IDs);
 				if (ids.substring(0,4).compareTo("Rsrv")!=0)
-					throw new RserveException(this,"Handshake failed: Rsrv signature expected, but received \""+ids+"\" instead.");
+					throw new RserveException(this, "Handshake failed: Rsrv signature expected, but received \""+ids+"\" instead.");
 				try {
 					rsrvVersion=Integer.parseInt(ids.substring(4,8));
 				} catch (Exception px) {}
 				// we support (knowingly) up to 103
-				if (rsrvVersion>103)
-					throw new RserveException(this,"Handshake failed: The server uses more recent protocol than this client.");
+				if (rsrvVersion > 103)
+					throw new RserveException(this, "Handshake failed: The server uses more recent protocol than this client.");
 				if (ids.substring(8,12).compareTo("QAP1")!=0)
-					throw new RserveException(this,"Handshake failed: unupported transfer protocol ("+ids.substring(8,12)+"), I talk only QAP1.");
-				for (int i=12;i<32;i+=4) {
+					throw new RserveException(this, "Handshake failed: unupported transfer protocol ("+ids.substring(8,12)+"), I talk only QAP1.");
+				for (int i=12; i<32; i+=4) {
 					String attr=ids.substring(i,i+4);
 					if (attr.compareTo("ARpt")==0) {
 						if (!authReq) { // this method is only fallback when no other was specified
@@ -168,7 +168,7 @@ public class RConnection extends REngine {
 			try {
 				os.write(session.key,0,32);
 			} catch (Exception sre) {
-				throw new RserveException(this,"Error while sending session key: "+sre.getMessage());
+			    throw new RserveException(this, "Error while sending session key: " + sre.getMessage(), sre);
 			}
 			rsrvVersion = session.rsrvVersion;
 		}
@@ -243,7 +243,7 @@ public class RConnection extends REngine {
 				return rx.getREXP();
 			} catch (REXPMismatchException me) {
 				me.printStackTrace();
-				throw new RserveException(this, "Error when parsing response: "+me.getMessage());
+				throw new RserveException(this, "Error when parsing response: " + me.getMessage(), me);
 			}
 		}
 		return null;
@@ -311,7 +311,7 @@ public void assign(String sym, REXP rexp) throws RserveException {
 		if (rp!=null && rp.isOk()) return;
 		throw new RserveException(this,"assign failed",rp);
 	} catch (REXPMismatchException me) {
-		throw new RserveException(this, "Error creating binary representation: "+me.getMessage());
+	    throw new RserveException(this, "Error creating binary representation: "+me.getMessage(), me);
 	}
 }
 
@@ -478,7 +478,7 @@ public REXP parseAndEval(String text, REXP where, boolean resolve) throws REngin
 	try {
 		return eval(text);
 	} catch (RserveException re) {
-		throw new REngineException(this, re.getMessage());
+	    throw new REngineException(this, re.getMessage(), re);
 	}
 }
 
@@ -491,7 +491,7 @@ public void assign(String symbol, REXP value, REXP env) throws REngineException 
 	try {
 		assign(symbol, value);
 	} catch (RserveException re) {
-		throw new REngineException(this, re.getMessage());
+	    throw new REngineException(this, re.getMessage(), re);
 	}
 }
 
