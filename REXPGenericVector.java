@@ -48,7 +48,7 @@ public class REXPGenericVector extends REXPVector {
 					Object value = payload.elementAt(i);
 					if (value != null)
 						value = ((REXP) value).asNativeJavaObject();
-					map.put(value, names[i]);
+					map.put(names[i], value);
 				}
 				if (valid)
 					return map;
