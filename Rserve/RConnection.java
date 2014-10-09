@@ -261,6 +261,10 @@ public class RConnection extends REngine {
         throw new RserveException(this,"eval failed",rp);
     }
 
+    public static int getNextMultipleOfFour(final int i) {
+        return (int) Math.ceil(i / 4.0) * 4;
+	}
+
     /** assign a string value to a symbol in R. The symbol is created if it doesn't exist already.
         @param sym symbol name. Currently assign uses CMD_setSEXP command of Rserve, i.e. the symbol value is NOT parsed. It is the responsibility of the user to make sure that the symbol name is valid in R (recall the difference between a symbol and an expression!). In fact R will always create the symbol, but it may not be accessible (examples: "bar\nfoo" or "bar$foo").
         @param ct contents
@@ -270,10 +274,8 @@ public class RConnection extends REngine {
             throw new RserveException(this,"Not connected");
         byte[] symn=sym.getBytes();
         byte[] ctn=ct.getBytes();
-        int sl=symn.length+1;
-        int cl=ctn.length+1;
-        if ((sl&3)>0) sl=(sl&0xfffffc)+4; // make sure the symbol length is divisible by 4
-        if ((cl&3)>0) cl=(cl&0xfffffc)+4; // make sure the content length is divisible by 4
+        int sl=getNextMultipleOfFour(symn.length+1);
+        int cl=getNextMultipleOfFour(ctn.length+1);
         byte[] rq=new byte[sl+4+cl+4];
         int ic;
         for(ic=0;ic<symn.length;ic++) rq[ic+4]=symn[ic];
