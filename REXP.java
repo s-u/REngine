@@ -244,6 +244,29 @@ public class REXP {
 											   "row.names"
 										   })));
 	}
+
+	public static REXP asCall(REXP what, REXP[] args) {
+		RList l = new RList();
+		l.add(what);
+		for (int i = 0; i < args.length; i++) l.add(args[i]);
+		return new REXPLanguage(l);
+	}
+	public static REXP asCall(String name, REXP[] args) {
+		return asCall(new REXPSymbol(name), args);
+	}
+
+	public static REXP asCall(String name, REXP arg1) {
+		return new REXPLanguage(new RList(new REXP[] { new REXPSymbol(name), arg1 })); }
+	public static REXP asCall(String name, REXP arg1, REXP arg2) {
+		return new REXPLanguage(new RList(new REXP[] { new REXPSymbol(name), arg1, arg2 })); }
+	public static REXP asCall(String name, REXP arg1, REXP arg2, REXP arg3) {
+		return new REXPLanguage(new RList(new REXP[] { new REXPSymbol(name), arg1, arg2, arg3 })); }
+	public static REXP asCall(REXP what, REXP arg1) {
+		return new REXPLanguage(new RList(new REXP[] { what, arg1 })); }
+	public static REXP asCall(REXP what, REXP arg1, REXP arg2) {
+		return new REXPLanguage(new RList(new REXP[] { what, arg1, arg2 })); }
+	public static REXP asCall(REXP what, REXP arg1, REXP arg2, REXP arg3) {
+		return new REXPLanguage(new RList(new REXP[] { what, arg1, arg2, arg3 })); }
 	
 	/** specifies how many items of a vector or list will be displayed in {@link #toDebugString} */
 	public static int maxDebugItems = 32;
