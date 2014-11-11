@@ -473,7 +473,9 @@ public REXP parse(String text, boolean resolve) throws REngineException {
 
 public REXP eval(REXP what, REXP where, boolean resolve) throws REngineException {
 	if (!connected || rt==null)
-		throw new RserveException(this,"Not connected");
+		throw new RserveException(this, "Not connected");
+	if (where != null)
+		throw new REngineException(this, "Rserve doesn't support environments other than .GlobalEnv");
 	try {
 		REXPFactory r = new REXPFactory(what);
 		int rl = r.getBinaryLength();
