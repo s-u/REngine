@@ -470,9 +470,25 @@ public void assign(String sym, REXP rexp) throws RserveException {
 public REXP parse(String text, boolean resolve) throws REngineException {
 	throw new REngineException(this, "Rserve doesn't support separate parsing step.");
 }
+
 public REXP eval(REXP what, REXP where, boolean resolve) throws REngineException {
-	return new REXPNull();
+	if (!connected || rt==null)
+		throw new RserveException(this,"Not connected");
+	try {
+		REXPFactory r = new REXPFactory(what);
+		int rl = r.getBinaryLength();
+		byte[] rq = new byte[rl + ((rl > 0xfffff0) ? 8 : 4)];
+		RTalk.setHdr(RTalk.DT_SEXP, rl, rq, 0);
+		r.getBinaryRepresentation(rq, ((rl > 0xfffff0) ? 8 : 4));
+		RPacket rp = rt.request(resolve ? RTalk.CMD_eval : RTalk.CMD_voidEval, rq);
+		if (rp != null && rp.isOk())
+			return parseEvalResponse(rp);
+		throw new RserveException(this,"eval failed", rp);
+	} catch (REXPMismatchException me) {
+		throw new RserveException(this, "Error creating binary representation: " + me.getMessage(), me);
+	}
 }
+
 public REXP parseAndEval(String text, REXP where, boolean resolve) throws REngineException {
 	if (where!=null) throw new REngineException(this, "Rserve doesn't support environments other than .GlobalEnv");
 	try {
