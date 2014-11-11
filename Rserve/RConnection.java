@@ -521,7 +521,7 @@ public void assign(String symbol, REXP value, REXP env) throws REngineException 
 public REXP get(String symbol, REXP env, boolean resolve) throws REngineException {
 	if (!resolve) throw new REngineException(this, "Rserve doesn't support references");
 	try {
-		return eval("get(\""+symbol+"\")");
+		return eval(new REXPSymbol(symbol), env, true);
 	} catch (RserveException re) {
 		throw new REngineException(this, re.getMessage());
 	}
