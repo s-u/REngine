@@ -226,6 +226,32 @@ public class test {
 			// we cannot really test any other encoding ..
 			System.out.println("PASSED");
 		}
+
+		{ // test QAP evals
+			System.out.println("* Test eval without parse (direct calls) ...");
+			System.out.println("  call 1L + 2 as a language construct");
+			REXP x = c.eval(REXP.asCall("+",
+						    new REXPInteger(1),
+						    new REXPDouble(2)), null, true);
+			if (x == null || !x.isNumeric() || x.asDouble() != 3)
+				throw new TestException("evaluating 1L + 2 as a call failed");
+			System.out.println("  call a compound statement and exported symbol");
+			x = c.eval(REXP.asCall("{", new REXP[] {
+						// X <- local vector 1,2,3,4
+						REXP.asCall("<-", new REXPSymbol("X"), new REXPInteger(new int[] { 1, 2, 3, 4 })),
+						// base::length(X)  # convoluted for the sake of testing exported symbols
+						REXP.asCall(REXP.asCall("::", new REXPSymbol("base"), new REXPSymbol("length")),
+							    new REXPSymbol("X"))
+					}), null, true);
+			if (x == null || !x.isInteger() || x.asInteger() != 4)
+				throw new TestException("calling a compound statement failed");
+			// since we did an assignment we mauy as well test the get() method
+			System.out.println("  get from global env");
+			x = c.get("X", null, true);
+			if (x == null || !x.isInteger() || x.length() != 4)
+				throw new TestException("retrieving value created by assignment expression call failed");
+			System.out.println("PASSED");
+		}
 		
 		{ // test control commands (works only when enabled and in Rserve 0.6-0 and higher only) - must be the last test since it closes the connection and shuts down the server
 			System.out.println("* Test control commands (this will fail if control commands are disabled) ...");
