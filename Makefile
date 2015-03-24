@@ -39,4 +39,13 @@ doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	mkdir $@
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
+mvn.pkg:
+	mvn clean package install && (cd Rserve && mvn clean package)
+
+mvn.sign:
+	mvn clean verify install -P release && (cd Rserve && mvn clean verify -P release )
+
+mvn.deploy:
+	mvn clean deploy install -P release && (cd Rserve && mvn clean deploy -P release )
+
 .PHONY: clean all test
