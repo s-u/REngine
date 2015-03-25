@@ -1,6 +1,8 @@
-package org.rosuda.rserve;
+package org.rosuda.REngine.Rserve;
 
 import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assume;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -8,21 +10,22 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rosuda.rengine.REXP;
-import org.rosuda.rengine.REXPDouble;
-import org.rosuda.rengine.REXPFactor;
-import org.rosuda.rengine.REXPGenericVector;
-import org.rosuda.rengine.REXPInteger;
-import org.rosuda.rengine.REXPList;
-import org.rosuda.rengine.REXPLogical;
-import org.rosuda.rengine.REXPMismatchException;
-import org.rosuda.rengine.REXPRaw;
-import org.rosuda.rengine.REXPString;
-import org.rosuda.rengine.REngine;
-import org.rosuda.rengine.REngineException;
-import org.rosuda.rengine.RFactor;
-import org.rosuda.rengine.RList;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPFactor;
+import org.rosuda.REngine.REXPGenericVector;
+import org.rosuda.REngine.REXPInteger;
+import org.rosuda.REngine.REXPList;
+import org.rosuda.REngine.REXPLogical;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REXPRaw;
+import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.REngine;
+import org.rosuda.REngine.REngineException;
+import org.rosuda.REngine.RFactor;
+import org.rosuda.REngine.RList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +48,16 @@ public class RserveTest {
    */
   private REngine engine = null;
 
+  @BeforeClass
+  static public void startUpRserve() throws RserveException {
+      if (!org.rosuda.REngine.Rserve.StartRserve.checkLocalRserve())
+	  fail("cannot start local Rserve for tests");
+  }
+
   @Before
-  public void startUpRserve() throws RserveException {
-    //TODO: Implement code to start Rserve on local machine
-    connection = new RConnection();
-    engine = (REngine) connection;
+  public void createConnection() throws RserveException {
+      connection = new RConnection();
+      engine = (REngine) connection;
   }
 
   @Test
@@ -365,27 +373,56 @@ public class RserveTest {
     assertEquals(4, rexp.asInteger());
   }
 
-//  @Test
-//  public void controlCommandTest() throws RserveException, REXPMismatchException {
-//    final String key = "rn" + Math.random();
-//    connection.serverEval("xXx<-'" + key + "'");
-//
-//    // Reconnect
-//    connection.close();
-//    connection = new RConnection();
-//
-//    final REXP rexp = connection.eval("xXx");
-//    assertNotNull(rexp);
-//    assertTrue(rexp.isString());
-//    assertEquals(1, rexp.length());
-//    assertEquals(key, rexp.asString());
-//  }
+  @Test
+  public void controlCommandTest() throws RserveException, REXPMismatchException {
+      final String key = "rn" + Math.random();
+      boolean hasCtrl = true;
+      try {
+	  connection.serverEval("xXx<-'" + key + "'");
+      } catch (RserveException re) {
+	  // we expect ERR_ctrl_closed if CTRL is disabled, so we take that as OK
+	  if (re.getRequestReturnCode() == org.rosuda.REngine.Rserve.protocol.RTalk.ERR_ctrl_closed)
+	      hasCtrl = false;
+	  else // anything else is a fail
+	      fail("serverEval failed with "+ re);
+      }
+
+      Assume.assumeTrue(hasCtrl);
+      
+      // Reconnect
+      connection.close();
+      engine = (REngine) (connection = new RConnection());
+      
+      final REXP rexp = connection.eval("xXx");
+      assertNotNull(rexp);
+      assertTrue(rexp.isString());
+      assertEquals(1, rexp.length());
+      assertEquals(key, rexp.asString());
+  }
 
   @After
-  public void tearDownRserve() {
-    //TODO: Implement code to shutdown Rserve on loca machine
-    connection.close();
-    engine.close();
+  public void closeConnection() {
+      engine.close();
+  }
+    
+  @AfterClass
+  public static void tearDownRserve() {
+      try {
+	  // connect so we can control
+	  RConnection connection = new RConnection();
+
+	  // first use CTRL - it will fail in most cases (sinnce CTRL is likely not enabled)
+	  // but is the most reliable
+	  try {
+	      connection.serverShutdown();
+	  } catch (RserveException e1) { }
+	  // this will work on older Rserve versions, may not work on new ones
+	  try {
+	      connection.shutdown();
+	  } catch (RserveException e2) { }
+	  // finally, close the connection
+	  connection.close();
+      } catch (REngineException e3) { } // if this fails, that's ok - nothing to shutdown
   }
 
 }
