@@ -41,10 +41,10 @@ class StreamHog extends Thread {
               s = s.substring(j + 6).trim();
             }
             installPath = s;
-            System.out.println("R InstallPath = " + s);
+            System.out.println("StartRserve: R InstallPath = " + s);
           }
         } else {
-          System.out.println("Rserve>" + line);
+          System.out.println("StartRserve: Rserve>" + line);
         }
       }
     } catch (IOException e) {
@@ -98,16 +98,16 @@ public class StartRserve {
           "echo 'library(Rserve);Rserve(" + (debug ? "TRUE" : "FALSE") + ",args=\"" + rsrvargs + "\")'|" + cmd + " " + rargs
         });
       }
-      System.out.println("waiting for Rserve to start ... (" + p + ")");
+      System.out.println("StartRserve: waiting for Rserve to start ... (" + p + ")");
       // we need to fetch the output - some platforms will die if you don't ...
       StreamHog errorHog = new StreamHog(p.getErrorStream(), false);
       StreamHog outputHog = new StreamHog(p.getInputStream(), false);
       if (!isWindows) /* on Windows the process will never return, so we cannot wait */ {
         p.waitFor();
       }
-      System.out.println("call terminated, let us try to connect ...");
+      System.out.println("StartRserve: call terminated, let us try to connect ...");
     } catch (Exception x) {
-      System.out.println("failed to start Rserve process with " + x.getMessage());
+      System.out.println("StartRserve: failed to start Rserve process with " + x.getMessage());
       return false;
     }
     int attempts = 5; /* try up to 5 times before giving up. We can be conservative here, because at this point the process execution itself was successful and the start up is usually asynchronous */
@@ -115,11 +115,10 @@ public class StartRserve {
     while (attempts > 0) {
       try {
         RConnection c = new RConnection();
-        System.out.println("Rserve is running.");
         c.close();
         return true;
       } catch (Exception e2) {
-        System.out.println("Try failed with: " + e2.getMessage());
+        System.out.println("StartRserve: Try failed with: " + e2.getMessage());
       }
       /* a safety sleep just in case the start up is delayed or asynchronous */
       try {
@@ -144,7 +143,7 @@ public class StartRserve {
     }
     String osname = System.getProperty("os.name");
     if (osname != null && osname.length() >= 7 && osname.substring(0, 7).equals("Windows")) {
-      System.out.println("Windows: query registry to find where R is installed ...");
+      System.out.println("StartRserve: Windows: query registry to find where R is installed ...");
       String installPath = null;
       try {
         Process rp = Runtime.getRuntime().exec("reg query HKLM\\Software\\R-core\\R");
@@ -182,11 +181,10 @@ public class StartRserve {
   public static boolean isRserveRunning() {
     try {
       RConnection c = new RConnection();
-      System.out.println("Rserve is running.");
       c.close();
       return true;
     } catch (Exception e) {
-      System.out.println("First connect try failed with: " + e.getMessage());
+      System.out.println("StartRserve: first connect try failed with: " + e.getMessage());
     }
     return false;
   }
