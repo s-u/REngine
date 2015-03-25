@@ -6,7 +6,7 @@
   <artifactId>Rserve</artifactId>
   <name>Rserve client back-end for REngine</name>
   <description>Rserve client back-end implementation for REngine to access R from Java via Rserve.</description>
-  <version>1.8.1</version>
+  <version>1.8.2-SNAPSHOT</version>
 
   <url>http://github.com/s-u/REngine</url>
 
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.rosuda.REngine</groupId>
       <artifactId>REngine</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
