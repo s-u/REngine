@@ -2,7 +2,7 @@
 ##       since they also test the JRI/rJava connectivity
 
 CP=../../REngine.jar:../JRIEngine.jar:$(RJAVA)/java/boot:$(RJAVA)/jri/JRI.jar
-JFLAGS=-source 1.4 -target 1.4
+JFLAGS=-source 1.6 -target 1.6
 
 RJAVA=$(shell echo "cat(system.file(package='rJava'))"|R --slave --no-save)
 JRI=$(shell if test -e ../../../JRI/src/JRI.jar; then echo ../../../JRI/src; else echo $(RJAVA)/jri; fi)

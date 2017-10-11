@@ -13,7 +13,7 @@ JRIENGINE_SRC=JRIEngine.java
 
 JAVAC=javac
 JAR=jar
-JFLAGS=-source 1.4 -target 1.4
+JFLAGS=-source 1.6 -target 1.6
 
 all: JRIEngine.jar
 

@@ -1,6 +1,6 @@
 JAVA=java
 JAVAC=javac
-JFLAGS+=-encoding utf8 -source 1.4 -target 1.4
+JFLAGS+=-encoding utf8 -source 1.6 -target 1.6
 
 all: test PlotDemo.class StartRserve.class
 
