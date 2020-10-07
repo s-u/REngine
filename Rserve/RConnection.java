@@ -266,25 +266,33 @@ public class RConnection extends REngine {
         @param ct contents
         */
     public void assign(String sym, String ct) throws RserveException {
-		if (!connected || rt==null)
-            throw new RserveException(this,"Not connected");
-        byte[] symn=sym.getBytes();
-        byte[] ctn=ct.getBytes();
-        int sl=symn.length+1;
-        int cl=ctn.length+1;
-        if ((sl&3)>0) sl=(sl&0xfffffc)+4; // make sure the symbol length is divisible by 4
-        if ((cl&3)>0) cl=(cl&0xfffffc)+4; // make sure the content length is divisible by 4
-        byte[] rq=new byte[sl+4+cl+4];
-        int ic;
-        for(ic=0;ic<symn.length;ic++) rq[ic+4]=symn[ic];
-        while (ic<sl) { rq[ic+4]=0; ic++; }
-        for(ic=0;ic<ctn.length;ic++) rq[ic+sl+8]=ctn[ic];
-        while (ic<cl) { rq[ic+sl+8]=0; ic++; }
-		RTalk.setHdr(RTalk.DT_STRING,sl,rq,0);
-		RTalk.setHdr(RTalk.DT_STRING,cl,rq,sl+4);
-		RPacket rp=rt.request(RTalk.CMD_setSEXP,rq);
-        if (rp!=null && rp.isOk()) return;
-        throw new RserveException(this,"assign failed",rp);
+	if (!connected || rt==null)
+	    throw new RserveException(this,"Not connected");
+	try {
+	    byte[] symn = sym.getBytes(transferCharset);
+	    byte[] ctn = ct.getBytes(transferCharset);
+	    int sl = symn.length + 1;
+	    int cl = ctn.length + 1;
+	    if ((sl & 3) > 0) sl = (sl & 0xfffffc) + 4; // make sure the symbol length is divisible by 4
+	    if ((cl & 3) > 0) cl = (cl & 0xfffffc) + 4; // make sure the content length is divisible by 4
+	    byte[] rq=new byte[sl + 4 + cl + 4];
+	    int ic;
+	    for (ic = 0;ic < symn.length; ic++)
+		rq[ic + 4] = symn[ic];
+	    while (ic < sl)
+		{ rq[ic + 4] = 0; ic++; }
+	    for (ic = 0; ic < ctn.length; ic++)
+		rq[ic + sl + 8] = ctn[ic];
+	    while (ic < cl)
+		{ rq[ic + sl + 8] = 0; ic++; }
+	    RTalk.setHdr(RTalk.DT_STRING, sl, rq, 0);
+	    RTalk.setHdr(RTalk.DT_STRING, cl, rq, sl + 4);
+	    RPacket rp = rt.request(RTalk.CMD_setSEXP, rq);
+	    if (rp !=null && rp.isOk()) return;
+	    throw new RserveException(this, "assign failed", rp);
+	} catch(java.io.UnsupportedEncodingException e) {
+	    throw new RserveException(this, "unsupported encoding in assign(String,String)", e);
+	}
     }
 
     /** assign a content of a REXP to a symbol in R. The symbol is created if it doesn't exist already.
@@ -296,9 +304,9 @@ public void assign(String sym, REXP rexp) throws RserveException {
 	    throw new RserveException(this,"Not connected");
 	try {
 		REXPFactory r = new REXPFactory(rexp);
-		int rl=r.getBinaryLength();
-		byte[] symn=sym.getBytes();
-		int sl=symn.length+1;
+		int rl = r.getBinaryLength();
+		byte[] symn = sym.getBytes(transferCharset);
+		int sl = symn.length+1;
 		if ((sl&3)>0) sl=(sl&0xfffffc)+4; // make sure the symbol length is divisible by 4
 		byte[] rq=new byte[sl+rl+((rl>0xfffff0)?12:8)];
 		int ic;
@@ -310,6 +318,8 @@ public void assign(String sym, REXP rexp) throws RserveException {
 		RPacket rp=rt.request(RTalk.CMD_setSEXP,rq);
 		if (rp!=null && rp.isOk()) return;
 		throw new RserveException(this,"assign failed",rp);
+	} catch(java.io.UnsupportedEncodingException e) {
+	    throw new RserveException(this, "unsupported encoding in assign(String,REXP)", e);
 	} catch (REXPMismatchException me) {
 	    throw new RserveException(this, "Error creating binary representation: "+me.getMessage(), me);
 	}
