@@ -213,7 +213,7 @@ public class test {
 		}
 		
 		{ // string encoding test (will work with Rserve 0.5-3 and higher only)
-			System.out.println("* Test string encoding support ...");
+			System.out.println("* Test string UTF-8 encoding support ...");
 			String t = "ひらがな"; // hiragana (literally, in hiragana ;))
 			c.setStringEncoding("utf8");
 			// -- Just in case the console is not UTF-8 don't display it
@@ -222,6 +222,21 @@ public class test {
 			REXP x = c.parseAndEval("nchar(s)");
 			System.out.println("  nchar = " + x);
 			if (x == null || !x.isInteger() || x.asInteger() != 4)
+				throw new TestException("UTF-8 encoding string length test failed");
+			// we cannot really test any other encoding ..
+			System.out.println("PASSED");
+		}
+
+		{ // string encoding test (will work with Rserve 0.5-3 and higher only)
+			System.out.println("* Test assign() transcoding support in ISO-8859-1 (latin1) locale ...");
+			if (!java.nio.charset.Charset.defaultCharset().name().contains("ISO-8859"))
+			    System.out.println("  (NOTE: this test requires Java to run in ISO-8859-1 locale, so try setting LANG=de_DE.ISO8859-1)");
+			String t = "mühsam"; // must be representable in ISO-8859-1 as one byte
+			c.setStringEncoding("utf8"); // Rserve should send this as UTF-8
+			c.assign("s", t);
+			REXP x = c.parseAndEval("length(charToRaw(s))");
+			System.out.println("  bytes = " + x + " " + ((x != null && x.isInteger()) ? x.asInteger() : ""));
+			if (x == null || !x.isInteger() || x.asInteger() != 7)
 				throw new TestException("UTF-8 encoding string length test failed");
 			// we cannot really test any other encoding ..
 			System.out.println("PASSED");
