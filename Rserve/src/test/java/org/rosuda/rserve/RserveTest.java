@@ -380,8 +380,10 @@ public class RserveTest {
       try {
 	  connection.serverEval("xXx<-'" + key + "'");
       } catch (RserveException re) {
-	  // we expect ERR_ctrl_closed if CTRL is disabled, so we take that as OK
-	  if (re.getRequestReturnCode() == org.rosuda.REngine.Rserve.protocol.RTalk.ERR_ctrl_closed)
+	  // we expect ERR_ctrl_closed if CTRL is disabled, or ERR_unsupported_cmd if this
+	  // version has no CTRL command support, so we take that as OK
+	  if (re.getRequestReturnCode() == org.rosuda.REngine.Rserve.protocol.RTalk.ERR_ctrl_closed ||
+	      re.getRequestReturnCode() == org.rosuda.REngine.Rserve.protocol.RTalk.ERR_unsupported_cmd)
 	      hasCtrl = false;
 	  else // anything else is a fail
 	      fail("serverEval failed with "+ re);
