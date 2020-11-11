@@ -39,6 +39,9 @@ doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	mkdir $@
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
+mvn.deps:
+	mvn dependency:resolve && (cd Rserve && mvn dependency:resolve)
+
 mvn.pkg:
 	mvn clean package install && (cd Rserve && mvn clean package)
 
