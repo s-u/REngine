@@ -40,7 +40,7 @@ doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
 mvn.deps:
-	mvn dependency:resolve && (cd Rserve && mvn dependency:resolve)
+	mvn dependency:resolve ## NOTE: can't run Rserve since we didn't build REngine yet
 
 mvn.pkg:
 	mvn clean package install && (cd Rserve && mvn clean package)
