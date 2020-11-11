@@ -24,5 +24,8 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
 
+    - name: Resolve Maven dependencies
+      run: make mvn.deps
+
     - name: Build and test
       run: make mvn.pkg
