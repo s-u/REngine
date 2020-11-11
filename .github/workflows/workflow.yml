@@ -1,5 +1,7 @@
 name: REngine
 
+on: push
+
 jobs:
   build:
 
