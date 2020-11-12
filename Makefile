@@ -43,7 +43,7 @@ mvn.deps:
 	mvn dependency:resolve ## NOTE: can't run Rserve since we didn't build REngine yet
 
 mvn.pkg:
-	mvn clean package install && (cd Rserve && mvn clean package)
+	mvn -B clean package install && (cd Rserve && mvn -B clean package)
 
 mvn.sign:
 	mvn clean verify install -P release && (cd Rserve && mvn clean verify -P release )

@@ -12,9 +12,6 @@ jobs:
         java: [1.8, 11, 13]
     name: Test using ${{ matrix.java }}
     steps:
-    - name: Install dependencies
-      run: sudo apt-get install r-base-dev
-
     - name: Install Rserve
       run: sudo R -e 'install.packages("Rserve",,"https://RForge.net")'
 
