@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         java: [1.8, 11, 13]
-    name: Test using ${{ matrix.java }}
+    name: Test using JDK ${{ matrix.java }}
     steps:
     - name: Install Rserve
       run: sudo R -e 'install.packages("Rserve",,"https://RForge.net")'
@@ -20,9 +20,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
-
-    - name: Resolve Maven dependencies
-      run: make mvn.deps
 
     - name: Build and test
       run: make mvn.pkg

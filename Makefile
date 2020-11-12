@@ -39,9 +39,6 @@ doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	mkdir $@
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
-mvn.deps:
-	mvn dependency:resolve ## NOTE: can't run Rserve since we didn't build REngine yet
-
 mvn.pkg:
 	mvn -B clean package install && (cd Rserve && mvn -B clean package)
 
