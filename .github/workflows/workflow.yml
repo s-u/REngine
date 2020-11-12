@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        java: [1.8, 11]
+        java: [1.8, 11, 13]
     name: Test using ${{ matrix.java }}
     steps:
     - name: Install dependencies
