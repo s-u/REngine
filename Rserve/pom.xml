@@ -83,35 +83,42 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>
-        <executions>
-          <execution>
-            <id>java-1.4-compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <source>1.4</source>
-              <target>1.4</target>
-            </configuration>
-          </execution>
-          <execution>
-            <id>java-1.5-compile</id>
-            <phase>process-test-sources</phase>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-            <configuration>
-              <source>1.5</source>
-              <target>1.5</target>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+	  <source>${target.version}</source>
+          <target>${target.version}</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
   <profiles>
+    <profile>
+      <id>target-1.5</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <target.version>1.5</target.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>target-1.6</id>
+      <activation>
+        <jdk>[9,12)</jdk>
+      </activation>
+      <properties>
+        <target.version>1.6</target.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>target-1.7</id>
+      <activation>
+	<jdk>[12,20)</jdk>
+      </activation>
+      <properties>
+	<target.version>1.7</target.version>
+      </properties>
+    </profile>
     <profile>
       <id>release</id>
       <build>

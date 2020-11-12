@@ -40,7 +40,7 @@ doc:	$(RENG_SRC) $(RSRV_SRC) $(JRI_SRC)
 	$(JAVADOC) -d $@ $(JDFLAGS) $^
 
 mvn.pkg:
-	mvn clean package install && (cd Rserve && mvn clean package)
+	mvn -B clean package install && (cd Rserve && mvn -B clean package)
 
 mvn.sign:
 	mvn clean verify install -P release && (cd Rserve && mvn clean verify -P release )
