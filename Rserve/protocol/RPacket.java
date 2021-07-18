@@ -1,5 +1,7 @@
 package org.rosuda.REngine.Rserve.protocol;
 
+import org.rosuda.REngine.Rserve.protocol.RTalk;
+
 // JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
 // Copyright (C) 2004 Simon Urbanek
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
@@ -21,7 +23,10 @@ public class RPacket {
     /** get command
         @return command */
     public int getCmd() { return cmd; }
-    
+
+    /** check if last response was an OOB message (send or msg) */
+    public boolean isOOB() { return ((cmd & 0xf0000) == RTalk.CMD_OOB); }
+
     /** check last response for RESP_OK
 	@return <code>true</code> if last response was OK */
     public boolean isOk() { return ((cmd&15)==1); }

@@ -9,6 +9,8 @@ import java.io.*;
 import java.net.*;
 
 import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.protocol.REXPFactory;
+import org.rosuda.REngine.REXP;
 
 /** This class encapsulates the QAP1 protocol used by Rserv.
     it is independent of the underying protocol(s), therefore RTalk
@@ -35,6 +37,12 @@ public class RTalk {
     public static final int CMD_voidEval=0x002;
     public static final int CMD_eval=0x003;
     public static final int CMD_shutdown=0x004;
+
+    /** OCAP call, only valid in OCAP mode, since Rserve 1.8 */
+    public static final int CMD_OCcall = 0x00f;
+    /** not a command but rather payload sent by the server in OCAP mode */
+    public static final int CMD_OCinit = 0x434f7352; /* RsOC in ASCII */
+
     public static final int CMD_openFile=0x010;
     public static final int CMD_createFile=0x011;
     public static final int CMD_closeFile=0x012;
@@ -73,7 +81,21 @@ public class RTalk {
     public static final int ERR_ctrl_closed=0x4e;
     public static final int ERR_session_busy=0x50;
     public static final int ERR_detach_failed=0x51;
-   
+
+    /** since 1.7 */
+    public static final int ERR_disabled = 0x61;
+    public static final int ERR_unavailable = 0x62;
+    public static final int ERR_cryptError = 0x63;
+    public static final int ERR_securityClose = 0x64;
+
+    public static final int CMD_RESP = 0x10000; /* response bit */
+    public static final int RESP_OK  = 0x10001;
+    public static final int RESP_ERR = 0x10002;
+
+    public static final int CMD_OOB  = 0x20000; /* OOB command, low 12 bits are app-specific */
+    public static final int OOB_SEND = 0x21000;
+    public static final int OOB_MSG  = 0x22000;
+
     InputStream is;
     OutputStream os;
     
@@ -180,6 +202,42 @@ public class RTalk {
         return request(cmd,null,cont,0,(cont==null)?0:cont.length);
     }
 
+    /** read the response. Return <code>null</code> on error (FIXME: need to use exceptions) */
+    public RPacket response() { return response(null); }
+
+    /** read the response. If header is <code>null</code> then is it read from the socket otherwise
+	the provided header is used instead of reading it. Note that if provided, the
+	header aray must have at least 16 bytes and it must at most contain one message */
+    public RPacket response(byte[] header) {
+	try {
+	    if (header == null) {
+		header = new byte[16];
+		int n = is.read(header);
+		if (n != 16)
+		    return null;
+	    }
+	    int rep = getInt(header, 0);
+	    int rl  = getInt(header, 4);
+	    if (rl > 0) {
+		byte[] ct = new byte[rl];
+                int n = 0;
+		if (header.length > 16) {
+		    n = header.length - 16;
+		    System.arraycopy(header, 16, ct, 0, n);
+		}
+                while (n < rl) {
+                    int rd = is.read(ct, n, rl - n);
+                    n += rd;
+                }
+		return new RPacket(rep, ct);
+	    }
+	    return new RPacket(rep, null);
+	} catch(Exception e) {
+	    e.printStackTrace();
+	    return null;
+	}
+    }
+
     /** sends a request with attached prefix and  parameters. Both prefix and cont can be <code>null</code>. Effectively <code>request(a,b,null)</code> and <code>request(a,null,b)</code> are equivalent.
 	@param cmd command - a special command of -1 prevents request from sending anything
         @param prefix - this content is sent *before* cont. It is provided to save memory copy operations where a small header precedes a large data chunk (usually prefix conatins the parameter header and cont contains the actual data).
@@ -208,22 +266,7 @@ public class RTalk {
 		if (cont!=null && cont.length>0)
 		    os.write(cont,offset,len);
 	    }
-
-	    byte[] ih=new byte[16];
-	    if (is.read(ih)!=16)
-		return null;
-	    int rep=getInt(ih,0);
-	    int rl =getInt(ih,4);
-	    if (rl>0) {
-		byte[] ct=new byte[rl];
-                int n=0;
-                while (n<rl) {
-                    int rd=is.read(ct,n,rl-n);
-                    n+=rd;
-                }
-		return new RPacket(rep,ct);
-	    }
-	    return new RPacket(rep,null);
+	    return response();
 	} catch(Exception e) {
 	    e.printStackTrace();
 	    return null;
@@ -248,6 +291,24 @@ public class RTalk {
             };
 	    setHdr(DT_STRING,sl,rq,0);
 	    return request(cmd,rq);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    /** sends a request with one REXP (single <code>DT_SEXP</code> payload)
+	@param cmd command
+	@param object REXP to send
+	@return returned packet or <code>null</code> if something went wrong */
+    public RPacket request(int cmd, REXP object) {
+	try {
+	    REXPFactory r = new REXPFactory(object);
+	    int rl = r.getBinaryLength();
+	    byte[] rq = new byte[rl + ((rl > 0xfffff0) ? 8 : 4)];
+	    setHdr(RTalk.DT_SEXP, rl, rq, 0);
+	    r.getBinaryRepresentation(rq, (rl > 0xfffff0) ? 8 : 4);
+	    return request(cmd, rq);
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
