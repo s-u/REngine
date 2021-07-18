@@ -37,7 +37,7 @@ public class RTest {
 				eng.assign("x",x);
 				String nas = eng.parseAndEval("paste(capture.output(print(x)),collapse='\\n')").asString();
 				System.out.println(nas);
-				if (!nas.equals("[1] 1.0 0.5  NA NaN 3.5"))
+				if (!nas.equals("[1] " + 1.0 + " " + 0.5 + "  NA NaN " + 3.5))
 					throw new TestException("NA/NaN assign+retrieve test failed");
 				// regression: the inverse failed becasue Java screwed up the bits in the NA value
 				REXP v = eng.parseAndEval("c(1.5, NA, NaN)");
