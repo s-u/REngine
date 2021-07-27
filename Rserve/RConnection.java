@@ -153,15 +153,27 @@ public class RConnection extends REngine {
 			    throw new RserveException(this, "Error while receiving data: "+sre.getMessage(), sre);
 			}
 			try {
+				/* is this OCAP mode ? */
+                                if (n >= 16 &&
+				    IDs[0] == 0x52 && IDs[1] == 0x73 &&
+                                    IDs[2] == 0x4f && IDs[3] == 0x43) {
+					/* it is possible that the buffering doesn't work out
+					   and the first packet is <32 bytes, in which case
+					   we have to re-wrap the array to have the correct length */
+                                        if (n < 32) {
+                                                byte[] header = new byte[n];
+                                                System.arraycopy(IDs, 0, header, 0, n);
+                                                IDs = header;
+                                        }
+
+                                        initOCAP(sock, IDs);
+                                        return;
+                                }
+
 				if (n!=32) {
 					throw new RserveException(this,"Handshake failed: expected 32 bytes header, got "+n);
 				}
 				String ids = new String(IDs);
-				/* is this OCAP mode ? */
-				if (ids.substring(0,4).equals("RsOC")) {
-				    initOCAP(sock, IDs);
-				    return;
-				}
 				/* regular Rserve mode? */
 				if (ids.substring(0,4).compareTo("Rsrv")!=0)
 					throw new RserveException(this, "Handshake failed: Rsrv signature expected, but received \""+ids+"\" instead.");
