@@ -162,10 +162,10 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 				throw(new REngineException(this, "Unable to initialize R"));
 			if (rni.rniGetVersion() < requiredAPIversion)
 				throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
-			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
-			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
-			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			globalEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, Long.valueOf(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
 			nullValue = new REXPNull();
 			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
 		} finally {
@@ -199,10 +199,10 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 				throw(new REngineException(this, "Unable to initialize R"));
 			if (rni.rniGetVersion() < requiredAPIversion)
 				throw(new REngineException(this, "JRI API version is too old, update rJava/JRI to match the REngine API"));
-			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
-			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
-			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			globalEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, Long.valueOf(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
 			nullValue = new REXPNull();
 			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
 		} finally {
@@ -227,10 +227,10 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 		rniMutex = rni.getRsync();
 		boolean obtainedLock = rniMutex.safeLock();
 		try {
-			globalEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
-			nullValueRef = new REXPReference(this, new Long(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
-			emptyEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
-			baseEnv = new REXPReference(this, new Long(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
+			globalEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_GlobalEnv)));
+			nullValueRef = new REXPReference(this, Long.valueOf(R_NilValue = rni.rniSpecialObject(Rengine.SO_NilValue)));
+			emptyEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_EmptyEnv)));
+			baseEnv = new REXPReference(this, Long.valueOf(rni.rniSpecialObject(Rengine.SO_BaseEnv)));
 			nullValue = new REXPNull();
 			R_UnboundValue = rni.rniSpecialObject(Rengine.SO_UnboundValue);
 		} finally {
@@ -249,7 +249,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			long pr = rni.rniParse(text, -1);
 			if (pr == 0 || pr == R_NilValue) throw(new REngineException(this, "Parse error"));
 			rni.rniPreserve(pr);
-			ref = new REXPReference(this, new Long(pr));
+			ref = new REXPReference(this, Long.valueOf(pr));
 			if (resolve)
 				try { ref = resolveReference(ref); } catch (REXPMismatchException me) { };
 		} finally {
@@ -282,7 +282,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			if (pr == 0) // rniEval() signals error by passing 0
 				throw new REngineEvalException(this, "error during evaluation", REngineEvalException.ERROR) ;
 			rni.rniPreserve(pr);
-			ref = new REXPReference(this, new Long(pr));
+			ref = new REXPReference(this, Long.valueOf(pr));
 			if (resolve)
 				ref = resolveReference(ref);
 		} finally {
@@ -330,7 +330,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			long pr = rni.rniFindVar(symbol, rho);
 			if (pr == R_UnboundValue || pr == 0) return null;
 			rni.rniPreserve(pr);
-			ref = new REXPReference(this, new Long(pr));
+			ref = new REXPReference(this, Long.valueOf(pr));
 			if (resolve)
 				try { ref = resolveReference(ref); } catch (REXPMismatchException me) { };
 		} finally {
@@ -510,7 +510,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			if (obtainedLock)
 				rniMutex.unlock();
 		}
-		return new REXPReference(this, new Long(ptr));
+		return new REXPReference(this, Long.valueOf(ptr));
 	}
 	
 	/** 
@@ -683,7 +683,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			long pr = rni.rniParentEnv(rho);
 			if (pr == 0 || pr == R_NilValue) return null; // this should never happen, really
 			rni.rniPreserve(pr);
-			ref = new REXPReference(this, new Long(pr));
+			ref = new REXPReference(this, Long.valueOf(pr));
 			if (resolve)
 				ref = resolveReference(ref);
 		} finally {
@@ -710,7 +710,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			long p = rni.rniEval(rni.rniLCons(rni.rniInstallSymbol("new.env"), rni.rniCons(rho, R_NilValue, rni.rniInstallSymbol("parent"), false)), 0);
 			/* TODO: should we handle REngineEvalException.INVALID_INPUT and REngineEvalException.ERROR here, for completeness */
 			if (p != 0) rni.rniPreserve(p);
-			ref = new REXPReference(this, new Long(p));
+			ref = new REXPReference(this, Long.valueOf(p));
 			if (resolve)
 				ref = resolveReference(ref);
 		} finally {
@@ -774,7 +774,7 @@ public class JRIEngine extends REngine implements RMainLoopCallbacks {
 			} else{ 
 				long p = rx.xp;
 				rni.rniPreserve(p) ;
-				ref = new REXPReference( this, new Long(p) ) ;
+				ref = new REXPReference( this, Long.valueOf(p) ) ;
 			}
 		} finally {
 			if (obtainedLock)

@@ -30,7 +30,7 @@ public abstract class REngine {
 		Class cl = Class.forName(klass);
 		if (cl == null) throw new ClassNotFoundException("can't find engine class " + klass);
 		Method m = cl.getMethod("createEngine", new Class[] { String[].class, REngineCallbacks.class, Boolean.TYPE });
-		Object o = m.invoke(null, new Object[] { args, callbacks, new Boolean(runREPL) });
+		Object o = m.invoke(null, new Object[] { args, callbacks, Boolean.valueOf(runREPL) });
 		return lastEngine = (REngine)o;
 	}
 	

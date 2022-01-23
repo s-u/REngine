@@ -20,7 +20,7 @@ public class REXPReference extends REXP {
 
 	/** shortcut for <code>REXPReference(eng, new Long(handle))</code> that is used by native code */
 	REXPReference(REngine eng, long handle) {
-		this(eng, new Long(handle));
+		this(eng, Long.valueOf(handle));
 	}
 
 	/** resolve the external REXP reference into an actual REXP object. In addition, the value (if not <code>null</code>) will be cached for subsequent calls to <code>resolve</code> until <code>invalidate</code> is called. */
