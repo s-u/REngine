@@ -13,7 +13,7 @@ JFLAGS=-encoding utf8 -source 1.6 -target 1.6
 
 Rserve.jar: $(RSRV_SRC) ../REngine.jar
 	@rm -rf org
-	$(JAVAC) -d . -cp ../REngine.jar $(RSRV_SRC)
+	$(JAVAC) $(JFLAGS) -d . -cp ../REngine.jar $(RSRV_SRC)
 	jar fc $@ org
 	rm -rf org
 
