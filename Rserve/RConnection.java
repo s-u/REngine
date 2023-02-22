@@ -486,22 +486,32 @@ public void assign(String sym, REXP rexp) throws RserveException {
 	@param user username
 	@param pwd password */
     public void login(String user, String pwd) throws RserveException {
+	login(user, pwd, false);
+    }
+
+    /** login using supplied user/pwd. Note that login must be the first
+	command if used
+	@param user username
+	@param pwd password
+	@param forcePlain if <code>false</code> (default) then crypt-based authentication is used if supported by the server, otherwise plain text password will be used. Note that crypt-based authentication cannot be used with passwords stored as hashes so in those cases <code>true</code> is needed here.
+ */
+    public void login(String user, String pwd, boolean forcePlain) throws RserveException {
 		if (!authReq) return;
 		if (!connected || rt==null)
 			throw new RserveException(this,"Not connected");
-		if (authType==AT_crypt) {
+		if (!forcePlain && authType == AT_crypt) {
 			if (Key==null) Key="rs";
 			RPacket rp=rt.request(RTalk.CMD_login,user+"\n"+jcrypt.crypt(Key,pwd));
 			if (rp!=null && rp.isOk()) return;
 			try { s.close(); } catch(Exception e) {};
 			is=null; os=null; s=null; connected=false;
-            throw new RserveException(this,"login failed",rp);
+			throw new RserveException(this, "crypt-based login failed", rp);
 		}
 		RPacket rp=rt.request(RTalk.CMD_login,user+"\n"+pwd);
 		if (rp!=null && rp.isOk()) return;
 		try {s.close();} catch (Exception e) {};
 		is=null; os=null; s=null; connected=false;
-        throw new RserveException(this,"login failed",rp);
+        throw new RserveException(this, "plain text login failed", rp);
     }
 
     
