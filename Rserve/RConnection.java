@@ -22,6 +22,7 @@ public class RConnection extends REngine {
     OutputStream os;
     boolean authReq=false;
     int authType=AT_plain;
+    boolean authPlainAllowed = false;
     String Key=null;
     RTalk rt=null;
 
@@ -192,6 +193,7 @@ public class RConnection extends REngine {
 							authReq=true;
 							authType=AT_plain;
 						}
+						authPlainAllowed = true;
 					}
 					if (attr.compareTo("ARuc")==0) {
 						authReq=true;
@@ -499,6 +501,8 @@ public void assign(String sym, REXP rexp) throws RserveException {
 		if (!authReq) return;
 		if (!connected || rt==null)
 			throw new RserveException(this,"Not connected");
+		if (forcePlain) /* ignore forcePlain if not allowed */
+		    forcePlain = authPlainAllowed;
 		if (!forcePlain && authType == AT_crypt) {
 			if (Key==null) Key="rs";
 			RPacket rp=rt.request(RTalk.CMD_login,user+"\n"+jcrypt.crypt(Key,pwd));
