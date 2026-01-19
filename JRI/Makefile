@@ -13,7 +13,10 @@ JRIENGINE_SRC=JRIEngine.java
 
 JAVAC=javac
 JAR=jar
-JFLAGS=-source 1.6 -target 1.6
+ifeq ($(JTARGET),)
+JTARGET:=$(shell for i in 1.6 8 11 17; do if javac -source $$i -target $$i package-info.java >/dev/null 2>&1; then echo $$i; break; fi; done)
+endif
+JFLAGS=-source $(JTARGET) -target $(JTARGET)
 
 all: JRIEngine.jar
 
